@@ -7,8 +7,9 @@
 //
 
 @import UIKit;
+#import <POPupSidebar/POPupSidebar.h>
 
-@interface POPAppDelegate : UIResponder <UIApplicationDelegate>
+@interface POPAppDelegate : UIResponder <UIApplicationDelegate, POPupSidebarDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

@@ -7,6 +7,7 @@
 //
 
 #import "POPViewController.h"
+#import <POPupSidebar/POPupSidebar.h>
 
 @interface POPViewController ()
 
@@ -17,7 +18,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    
+    [POPupSidebarVC addSidebarWithViewController:self];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning

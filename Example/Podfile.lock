@@ -1,0 +1,20 @@
+PODS:
+  - MBProgressHUD (0.9.2)
+  - POPLib (0.1.61):
+    - MBProgressHUD (~> 0.9)
+  - POPupSidebar (0.1.0):
+    - POPLib (~> 0.1)
+
+DEPENDENCIES:
+  - POPupSidebar (from `../`)
+
+EXTERNAL SOURCES:
+  POPupSidebar:
+    :path: ../
+
+SPEC CHECKSUMS:
+  MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
+  POPLib: bef50b9b1841df80fda2382690c87926143da17c
+  POPupSidebar: 901bc3ab866942bf712ec7f23809912904cc8a80
+
+COCOAPODS: 0.39.0

@@ -8,12 +8,34 @@
 
 #import "POPAppDelegate.h"
 
+#define GC_FontSizeMenu 14.0
+
+
+
 @implementation POPAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    
+    [POPupSidebarVC addMenuItemWithKey:@"[SHOP]" title: LocalizedText(@"Shop",nil) image:@"shop" fontsize:GC_FontSizeMenu];
+    [POPupSidebarVC addMenuItemWithKey:@"[ORDER]" title: LocalizedText(@"Order",nil) image:@"order" fontsize:GC_FontSizeMenu];
+    [POPupSidebarVC addLineBreak];
+    [POPupSidebarVC addMenuItemWithKey:@"[SETTINGS]" title: LocalizedText(@"Settings",nil) image:@"settings" fontsize:GC_FontSizeMenu];
+    
+    //process view
+    [POPupSidebarVC addMenuActionChangeViewWithKey:@"[SHOP]" storyboardName:@"Main" storyboardID:@"shop"];
+    [POPupSidebarVC addMenuActionChangeViewWithKey:@"[ORDER]" storyboardName:@"Main" storyboardID:@"order"];
+    
+    [POPupSidebarVC Instance].popUpSidebarDelegate = self;
+    
     return YES;
+}
+
+-(void)popUpDidSelectedItemWithKey:(NSString *)key currentViewController:(UIViewController *)view
+{
+    if ([key isEqualToString:@"[SETTINGS]"]) {
+        NSLog(@"SETTINGS clicked");
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

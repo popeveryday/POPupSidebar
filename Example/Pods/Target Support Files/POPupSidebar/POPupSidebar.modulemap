@@ -1,0 +1,6 @@
+framework module POPupSidebar {
+  umbrella header "POPupSidebar-umbrella.h"
+
+  export *
+  module * { export * }
+}
