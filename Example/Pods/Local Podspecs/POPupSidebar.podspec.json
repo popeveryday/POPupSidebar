@@ -1,6 +1,6 @@
 {
   "name": "POPupSidebar",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "summary": "Quick custom sidebar for Object-C project.",
   "homepage": "https://github.com/popeveryday/POPupSidebar",
   "license": "MIT",
@@ -9,7 +9,7 @@
   },
   "source": {
     "git": "https://github.com/popeveryday/POPupSidebar.git",
-    "tag": "0.1.0"
+    "tag": "0.1.2"
   },
   "platforms": {
     "ios": "7.1"

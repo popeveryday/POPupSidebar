@@ -79,7 +79,7 @@ static POPupSidebarVC *sharedInstance = nil;
 
 +(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID
 {
-    [[POPupSidebarVC Instance].sidebarViewController addMenuActionChangeViewWithKey:key storyboardName:storyboardName storyboardID:storyboardID displayStyle:DisplayStyleReplace];
+    [[POPupSidebarVC Instance].sidebarViewController addMenuActionChangeViewWithKey:key storyboardName:storyboardName storyboardID:storyboardID displayStyle:DisplayStyleReplaceNavigationRootVC];
 }
 
 +(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID displayStyle:(enum DisplayStyle) displayStyle
@@ -339,7 +339,7 @@ static POPupSidebarVC *sharedInstance = nil;
         if ([sidebarState isEqualToString:@"Hide"]) {
             [self removeSidebar];
             
-            if ([StringLib IsValid:key])
+            if ([StringLib isValid:key])
             {
                 
                 if (_popUpSidebarDelegate != nil && [_popUpSidebarDelegate respondsToSelector:@selector(popUpDidSelectedItemWithKey:currentViewController:)])
@@ -480,14 +480,14 @@ static POPupSidebarVC *sharedInstance = nil;
     
     for (int i = 0; i < ds.count; i++)
     {
-        Hashtable* hash = [StringLib DeparseString:ds[i]];
-        if ([[hash Hashtable_GetValueForKey:@"key"] isEqualToString:key])
+        Hashtable* hash = [StringLib deparseString:ds[i]];
+        if ([[hash hashtable_GetValueForKey:@"key"] isEqualToString:key])
         {
-            [hash Hashtable_AddValue:[title stringByReplacingOccurrencesOfString:@"&" withString:@"[AnD]"] forKey:@"title"];
-            [hash Hashtable_AddValue:image forKey:@"image"];
-            [hash Hashtable_AddValue:[NSString stringWithFormat:@"%f", fontsize] forKey:@"fontsize"];
+            [hash hashtable_AddValue:[title stringByReplacingOccurrencesOfString:@"&" withString:@"[AnD]"] forKey:@"title"];
+            [hash hashtable_AddValue:image forKey:@"image"];
+            [hash hashtable_AddValue:[NSString stringWithFormat:@"%f", fontsize] forKey:@"fontsize"];
             
-            ds[i] = [StringLib ParseString: hash];
+            ds[i] = [StringLib parseString: hash];
             return;
         }
     }
@@ -506,11 +506,11 @@ static POPupSidebarVC *sharedInstance = nil;
         _lastActionKey = key;
     }
     
-    [actions Hashtable_AddValue:[NSString stringWithFormat:@"action=%@&%@=%@&%@=%@&%@=%d", Action_Storyboard, Action_Storyboard_name, storyboardName, Action_Storyboard_id, storyboardID, Action_Storyboard_ispush, (int)displayStyle] forKey:key];
+    [actions hashtable_AddValue:[NSString stringWithFormat:@"action=%@&%@=%@&%@=%@&%@=%d", Action_Storyboard, Action_Storyboard_name, storyboardName, Action_Storyboard_id, storyboardID, Action_Storyboard_ispush, (int)displayStyle] forKey:key];
 }
 
 -(void) addLineBreak{
-    [self addMenuItemWithKey:[FileLib GetNewName:nil suffix:nil] title:@"[LINEBREAK]" image:@"" fontsize:0];
+    [self addMenuItemWithKey:[FileLib getNewName:nil suffix:nil] title:@"[LINEBREAK]" image:@"" fontsize:0];
 }
 
 -(void) addSectionWithTitle:(NSString*)title
@@ -532,8 +532,8 @@ static POPupSidebarVC *sharedInstance = nil;
     NSInteger i = 0, j = 0;
     if (sections == nil) {
         for (NSString* item in datasource) {
-            Hashtable* data = [StringLib DeparseString:item];
-            if ([[data Hashtable_GetValueForKey:@"key"] isEqualToString:key]) {
+            Hashtable* data = [StringLib deparseString:item];
+            if ([[data hashtable_GetValueForKey:@"key"] isEqualToString:key]) {
                 return [NSIndexPath indexPathForRow:i inSection:-1];
                 break;
             }
@@ -543,8 +543,8 @@ static POPupSidebarVC *sharedInstance = nil;
         for (NSMutableArray* ds in datasource) {
             i = 0;
             for (NSString* item in ds) {
-                Hashtable* data = [StringLib DeparseString:item];
-                if ([[data Hashtable_GetValueForKey:@"key"] isEqualToString:key]) {
+                Hashtable* data = [StringLib deparseString:item];
+                if ([[data hashtable_GetValueForKey:@"key"] isEqualToString:key]) {
                     
                     return [NSIndexPath indexPathForRow:i inSection:j];
                     
@@ -579,19 +579,19 @@ static POPupSidebarVC *sharedInstance = nil;
     
     if (index.section == -1){
         
-        Hashtable* data = [StringLib DeparseString: datasource[index.row]];
-        [data Hashtable_AddValue:value forKey:hashkey];
+        Hashtable* data = [StringLib deparseString: datasource[index.row]];
+        [data hashtable_AddValue:value forKey:hashkey];
         
-        datasource[index.row] = [StringLib ParseString:data];
+        datasource[index.row] = [StringLib parseString:data];
         return;
     }
     
     NSMutableArray* ds = [datasource objectAtIndex:index.section];
     
-    Hashtable* data = [StringLib DeparseString: ds[index.row]];
-    [data Hashtable_AddValue:value forKey:hashkey];
+    Hashtable* data = [StringLib deparseString: ds[index.row]];
+    [data hashtable_AddValue:value forKey:hashkey];
     
-    ds[index.row] = [StringLib ParseString:data];
+    ds[index.row] = [StringLib parseString:data];
 }
 
 
@@ -628,17 +628,17 @@ static POPupSidebarVC *sharedInstance = nil;
 -(UITableViewCell*) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString *identifier = @"Cell";
     
-    Hashtable* item = [StringLib DeparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
+    Hashtable* item = [StringLib deparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
     
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     
     cell.contentView.backgroundColor = [UIColor clearColor];
     cell.backgroundColor = [POPupSidebarVC Instance].customMenuItemBgColor != nil ? [POPupSidebarVC Instance].customMenuItemBgColor : [UIColor clearColor];
     
-    if ([[item Hashtable_GetValueForKey:@"type"] isEqualToString:@"profile"])
+    if ([[item hashtable_GetValueForKey:@"type"] isEqualToString:@"profile"])
     {
-        NSString* imagePath = [item Hashtable_GetValueForKey:@"image"];
-        UIImageView* profileimage = [FileLib CheckPathExisted:imagePath] ? ImageViewWithPath(imagePath) : ImageViewWithImagename(imagePath);
+        NSString* imagePath = [item hashtable_GetValueForKey:@"image"];
+        UIImageView* profileimage = [FileLib checkPathExisted:imagePath] ? ImageViewWithPath(imagePath) : ImageViewWithImagename(imagePath);
         
         CGFloat spacing = [POPupSidebarVC Instance].customProfileSpacing > 0 ? [POPupSidebarVC Instance].customProfileSpacing : profile_spacing;
         CGSize profilesize = [POPupSidebarVC Instance].customProfileImageSize > 0 ? CGSizeMake([POPupSidebarVC Instance].customProfileImageSize, [POPupSidebarVC Instance].customProfileImageSize) : profile_imageSize;
@@ -658,14 +658,14 @@ static POPupSidebarVC *sharedInstance = nil;
         [cell addSubview:profileimage];
         
         UILabel* title = [[UILabel alloc] initWithFrame:CGRectMake(spacing, profileimage.frame.origin.y + profileimage.frame.size.height + profile_textSpacing, [POPupSidebarVC sidebarWidth], profile_titleHeight)];
-        title.text = [item Hashtable_GetValueForKey:@"title"];
+        title.text = [item hashtable_GetValueForKey:@"title"];
         title.textColor = [POPupSidebarVC Instance].customProfileTextColor != nil ? [POPupSidebarVC Instance].customProfileTextColor : [UIColor grayColor];
         [title setFont:[UIFont boldSystemFontOfSize:title.font.pointSize]];
         [cell addSubview:title];
         
-        if ( [StringLib IsValid:[item Hashtable_GetValueForKey:@"detailtext"]]) {
+        if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]]) {
             UILabel* detail = [[UILabel alloc] initWithFrame:CGRectMake(spacing, title.frame.origin.y + title.frame.size.height + profile_textSpacing, [POPupSidebarVC sidebarWidth], profile_detailHeight)];
-            detail.text = [item Hashtable_GetValueForKey:@"detailtext"];
+            detail.text = [item hashtable_GetValueForKey:@"detailtext"];
             detail.textColor = [POPupSidebarVC Instance].customProfileDetailTextColor != nil ? [POPupSidebarVC Instance].customProfileDetailTextColor : [UIColor grayColor];
             [cell addSubview:detail];
         }
@@ -673,7 +673,7 @@ static POPupSidebarVC *sharedInstance = nil;
         return cell;
     }
     
-    if ([[item Hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"])
+    if ([[item hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"])
     {
         cell.backgroundColor = [POPupSidebarVC Instance].customLineBreakBgColor == nil ? [UIColor grayColor] : [POPupSidebarVC Instance].customLineBreakBgColor;
         cell.separatorInset = UIEdgeInsetsMake(0, cell.bounds.size.width, 0, 0);
@@ -681,8 +681,8 @@ static POPupSidebarVC *sharedInstance = nil;
     }
     
     //for hide row before
-    Hashtable* nextitem = [StringLib DeparseString: sections == nil ? (datasource.count > indexPath.row + 1 ? datasource[indexPath.row + 1] : nil) : ( [datasource[indexPath.section] count] > indexPath.row+1 ? datasource[indexPath.section][indexPath.row+1] : nil) ];
-    if(nextitem == nil || (nextitem != nil && nextitem.count > 0 && [[nextitem Hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]))
+    Hashtable* nextitem = [StringLib deparseString: sections == nil ? (datasource.count > indexPath.row + 1 ? datasource[indexPath.row + 1] : nil) : ( [datasource[indexPath.section] count] > indexPath.row+1 ? datasource[indexPath.section][indexPath.row+1] : nil) ];
+    if(nextitem == nil || (nextitem != nil && nextitem.count > 0 && [[nextitem hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]))
     {
         cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
     }
@@ -691,7 +691,7 @@ static POPupSidebarVC *sharedInstance = nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
         cell.textLabel.textColor = [POPupSidebarVC Instance].customMenuItemTextColor != nil ? [POPupSidebarVC Instance].customMenuItemTextColor : [CommonLib colorFromHexString:@"606366" alpha:1];
         
-        if ([_lastActionKey isEqualToString:[item Hashtable_GetValueForKey:@"key"]])
+        if ([_lastActionKey isEqualToString:[item hashtable_GetValueForKey:@"key"]])
         {
             cell.backgroundColor = [POPupSidebarVC Instance].customMenuItemActiveBgColor != nil ? [POPupSidebarVC Instance].customMenuItemActiveBgColor : [UIColor whiteColor];
             cell.accessoryType = UITableViewCellAccessoryNone;
@@ -700,25 +700,25 @@ static POPupSidebarVC *sharedInstance = nil;
     }
     
     
-    NSString* fontsize = [item Hashtable_GetValueForKey:@"fontsize"];
-    if ([StringLib IsValid:fontsize] && [fontsize floatValue] > 0) {
+    NSString* fontsize = [item hashtable_GetValueForKey:@"fontsize"];
+    if ([StringLib isValid:fontsize] && [fontsize floatValue] > 0) {
         cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:[fontsize floatValue] ];
     }
     
-    cell.textLabel.text = LocalizedText([[item Hashtable_GetValueForKey:@"title"] stringByReplacingOccurrencesOfString:@"[AnD]" withString:@"&"],nil);
+    cell.textLabel.text = LocalizedText([[item hashtable_GetValueForKey:@"title"] stringByReplacingOccurrencesOfString:@"[AnD]" withString:@"&"],nil);
     
-    NSString* image = [item Hashtable_GetValueForKey:@"image"];
-    if ([StringLib IsValid:image]){
+    NSString* image = [item hashtable_GetValueForKey:@"image"];
+    if ([StringLib isValid:image]){
         
-        if ([FileLib CheckPathExisted:image]) {
+        if ([FileLib checkPathExisted:image]) {
             cell.imageView.image = [UIImage imageWithContentsOfFile:image];
         }else{
             cell.imageView.image = [UIImage imageNamed:image];
         }
         
-        if ([item.Keys containsObject:@"cornerRadius"]) {
+        if ([item.keys containsObject:@"cornerRadius"]) {
             cell.imageView.clipsToBounds = YES;
-            cell.imageView.layer.cornerRadius = [[item Hashtable_GetValueForKey:@"cornerRadius"] floatValue];
+            cell.imageView.layer.cornerRadius = [[item hashtable_GetValueForKey:@"cornerRadius"] floatValue];
         }
         
     }
@@ -726,7 +726,7 @@ static POPupSidebarVC *sharedInstance = nil;
     
     
     UILabel* notificationLabel = cell.accessoryView == nil ? nil : (UILabel*)cell.accessoryView;
-    if ([item.Keys containsObject:@"notification"])
+    if ([item.keys containsObject:@"notification"])
     {
         if (cell.accessoryView == nil)
         {
@@ -743,7 +743,7 @@ static POPupSidebarVC *sharedInstance = nil;
         
         
         [notificationLabel setHidden:NO];
-        notificationLabel.text = [item Hashtable_GetValueForKey:@"notification"];
+        notificationLabel.text = [item hashtable_GetValueForKey:@"notification"];
         if (notificationLabel.text.length > 2) {
             notificationLabel.frame = CGRectMake(0, 0, 25 + ((notificationLabel.text.length-2) * 10) , 25);
         }
@@ -760,13 +760,13 @@ static POPupSidebarVC *sharedInstance = nil;
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    Hashtable* item = [StringLib DeparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
+    Hashtable* item = [StringLib deparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
     
     [_tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSString* key = [item Hashtable_GetValueForKey:@"key"];
+    NSString* key = [item hashtable_GetValueForKey:@"key"];
     
-    if (![StringLib IsValid:key]) {
+    if (![StringLib isValid:key]) {
         return;
     }
     
@@ -796,7 +796,7 @@ static POPupSidebarVC *sharedInstance = nil;
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if (sections == nil) return 0;
-    if ([StringLib IsValid:sections[section]])
+    if ([StringLib isValid:sections[section]])
     {
         if ([sections[section] isEqualToString:@"[DISABLE]"]) {
             return 0;
@@ -809,19 +809,19 @@ static POPupSidebarVC *sharedInstance = nil;
 
 -(CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    Hashtable* item = [StringLib DeparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
+    Hashtable* item = [StringLib deparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
     
-    if ([[item Hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"])
+    if ([[item hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"])
     {
         return [POPupSidebarVC Instance].customLineBreakHeight > 0 ? [POPupSidebarVC Instance].customLineBreakHeight : 5;
     }
     
-    if ([[item Hashtable_GetValueForKey:@"type"] isEqualToString:@"profile"])
+    if ([[item hashtable_GetValueForKey:@"type"] isEqualToString:@"profile"])
     {
         CGFloat spacing = [POPupSidebarVC Instance].customProfileSpacing > 0 ? [POPupSidebarVC Instance].customProfileSpacing : profile_spacing;
         CGSize profilesize = [POPupSidebarVC Instance].customProfileImageSize > 0 ? CGSizeMake([POPupSidebarVC Instance].customProfileImageSize, [POPupSidebarVC Instance].customProfileImageSize) : profile_imageSize;
         
-        if ( [StringLib IsValid:[item Hashtable_GetValueForKey:@"detailtext"]]) {
+        if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]]) {
             return profilesize.height + (spacing*2) + profile_titleHeight + profile_detailHeight + (profile_textSpacing*2);
         }
         
@@ -838,31 +838,31 @@ static POPupSidebarVC *sharedInstance = nil;
         return;
     }
     
-    NSString* value = [actions Hashtable_GetValueForKey:key];
+    NSString* value = [actions hashtable_GetValueForKey:key];
     if(value == nil) return;
-    Hashtable* action_hash = [StringLib DeparseString:value];
+    Hashtable* action_hash = [StringLib deparseString:value];
     
-    NSString* action = [action_hash Hashtable_GetValueForKey:@"action"];
+    NSString* action = [action_hash hashtable_GetValueForKey:@"action"];
     
-    if (![StringLib IsValid:action]) {
+    if (![StringLib isValid:action]) {
         return;
     }
     
-    enum DisplayStyle displayStyle = (enum DisplayStyle)[[action_hash Hashtable_GetValueForKey:Action_Storyboard_ispush] integerValue];
+    enum DisplayStyle displayStyle = (enum DisplayStyle)[[action_hash hashtable_GetValueForKey:Action_Storyboard_ispush] integerValue];
     
     if ([action isEqualToString:Action_Storyboard])
     {
-        [self presentViewWithStorboardName:[action_hash Hashtable_GetValueForKey:Action_Storyboard_name] storyboardViewID:[action_hash Hashtable_GetValueForKey:Action_Storyboard_id] currentViewController:currentRootViewController displayStyle:displayStyle];
+        [self presentViewWithStorboardName:[action_hash hashtable_GetValueForKey:Action_Storyboard_name] storyboardViewID:[action_hash hashtable_GetValueForKey:Action_Storyboard_id] currentViewController:currentRootViewController displayStyle:displayStyle];
     }
     
-    if(displayStyle == DisplayStyleReplace) _lastActionKey = key;
+    if(displayStyle == DisplayStyleReplaceNavigationRootVC) _lastActionKey = key;
 }
 
 
 -(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle
 {
     [ViewLib presentViewWithStorboardName:storyboardName storyboardViewID:viewID currentViewController:viewController displayStyle:displayStyle prepareBlock:nil completeBlock:^{
-        if(displayStyle == DisplayStyleReplace) [self reloadMenu];
+        if(displayStyle == DisplayStyleReplaceNavigationRootVC) [self reloadMenu];
     }];
 }
 
