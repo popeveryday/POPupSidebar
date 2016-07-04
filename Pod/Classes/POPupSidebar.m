@@ -410,6 +410,8 @@ static POPupSidebarVC *sharedInstance = nil;
     
     if ([POPupSidebarVC Instance].customMenuItemSeparatorColor != nil) {
         _tableView.separatorColor = [POPupSidebarVC Instance].customMenuItemSeparatorColor;
+    }else{
+        [POPupSidebarVC Instance].customMenuItemSeparatorColor = _tableView.separatorColor;
     }
     
     
@@ -681,11 +683,11 @@ static POPupSidebarVC *sharedInstance = nil;
     }
     
     //for hide row before
-    Hashtable* nextitem = [StringLib deparseString: sections == nil ? (datasource.count > indexPath.row + 1 ? datasource[indexPath.row + 1] : nil) : ( [datasource[indexPath.section] count] > indexPath.row+1 ? datasource[indexPath.section][indexPath.row+1] : nil) ];
-    if(nextitem == nil || (nextitem != nil && nextitem.count > 0 && [[nextitem hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]))
-    {
-        cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
-    }
+    //    Hashtable* nextitem = [StringLib deparseString: sections == nil ? (datasource.count > indexPath.row + 1 ? datasource[indexPath.row + 1] : nil) : ( [datasource[indexPath.section] count] > indexPath.row+1 ? datasource[indexPath.section][indexPath.row+1] : nil) ];
+    //    if(nextitem == nil || (nextitem != nil && nextitem.count > 0 && [[nextitem hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]))
+    //    {
+    //        cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, 1000);
+    //    }
     
     if ([POPupSidebarVC Instance].sidebarType == POPupSidebarMenuTypeFlat) {
         cell.accessoryType = UITableViewCellAccessoryNone;
@@ -757,6 +759,19 @@ static POPupSidebarVC *sharedInstance = nil;
     
     return cell;
 }
+
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+    //for hide row before
+    Hashtable* nextitem = [StringLib deparseString: sections == nil ? (datasource.count > indexPath.row + 1 ? datasource[indexPath.row + 1] : nil) : ( [datasource[indexPath.section] count] > indexPath.row+1 ? datasource[indexPath.section][indexPath.row+1] : nil) ];
+    if(nextitem == nil || (nextitem != nil && nextitem.count > 0 && [[nextitem hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]))
+    {
+        tableView.separatorColor = [POPupSidebarVC Instance].customMenuItemSeparatorColor;
+    }else{
+        tableView.separatorColor = [UIColor clearColor];
+    }
+}
+
+
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
