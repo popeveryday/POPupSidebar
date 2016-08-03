@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name             = "POPupSidebar"
-s.version          = "0.1.22"
+s.version          = "0.1.23"
 s.summary          = "Quick custom sidebar for Object-C project."
 s.homepage         = "https://github.com/popeveryday/POPupSidebar"
 s.license          = 'MIT'
@@ -11,4 +11,5 @@ s.requires_arc = true
 s.source_files = 'Pod/Classes/**/*.{h,m,c}'
 s.resources = 'Pod/Classes/*.bundle'
 s.dependency 'POPLib', '~> 0.1'
+s.dependency 'AFNetworking', '~> 2.5'
 end

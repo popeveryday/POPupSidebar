@@ -86,6 +86,8 @@ enum POPupSidebarProfileType{
 +(void) setSidebarNavigationItem:(UIView*)view position:(enum POPupSidebarNavigationPosition) position;
 
 +(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image name:(NSString*)name detailText:(NSString*)detailText;
++(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image placeHolderImage:(NSString*)placeholderImage name:(NSString*)name detailText:(NSString*)detailText;
+
 +(void) addMenuItemWithKey:(NSString*)key title:(NSString*)title image:(NSString*)image fontsize:(float)fontsize;
 +(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID;
 +(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID displayStyle:(enum DisplayStyle) displayStyle;
@@ -122,6 +124,8 @@ enum POPupSidebarProfileType{
 -(void) setNavigationItem:(UIView*)view position:(enum POPupSidebarNavigationPosition) position;
 
 -(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image name:(NSString*)name detailText:(NSString*)detailText fontsize:(float)fontsize;
+-(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image placeHolderImage:(NSString*)imageplaceholder name:(NSString*)name detailText:(NSString*)detailText fontsize:(float)fontsize;
+
 -(void) addMenuItemWithKey:(NSString*)key title:(NSString*)title image:(NSString*)image fontsize:(float)fontsize;
 -(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID displayStyle:(enum DisplayStyle) displayStyle;
 -(void) addOptionWithKey:(NSString*)key hashkey:(NSString*)hashkey value:(NSString*)value;

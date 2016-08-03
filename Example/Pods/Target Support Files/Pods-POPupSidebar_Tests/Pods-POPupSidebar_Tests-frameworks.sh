@@ -84,11 +84,13 @@ strip_invalid_archs() {
 
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
+  install_framework "Pods-POPupSidebar_Tests/AFNetworking.framework"
   install_framework "Pods-POPupSidebar_Tests/MBProgressHUD.framework"
   install_framework "Pods-POPupSidebar_Tests/POPLib.framework"
   install_framework "Pods-POPupSidebar_Tests/POPupSidebar.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
+  install_framework "Pods-POPupSidebar_Tests/AFNetworking.framework"
   install_framework "Pods-POPupSidebar_Tests/MBProgressHUD.framework"
   install_framework "Pods-POPupSidebar_Tests/POPLib.framework"
   install_framework "Pods-POPupSidebar_Tests/POPupSidebar.framework"

@@ -7,6 +7,8 @@
 //
 
 #import "POPupSidebar.h"
+#import <AFNetworking/AFNetworking.h>
+#import <AFNetworking/UIImageView+AFNetworking.h>
 
 #define profile_spacing 15
 #define profile_imageSize CGSizeMake(75, 75)
@@ -70,6 +72,11 @@ static POPupSidebarVC *sharedInstance = nil;
 +(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image name:(NSString*)name detailText:(NSString*)detailText
 {
     [[POPupSidebarVC Instance].sidebarViewController addMenuProfileWithKey:key image:image name:name detailText:detailText fontsize:0];
+}
+
++(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image placeHolderImage:(NSString*)placeholderImage name:(NSString*)name detailText:(NSString*)detailText
+{
+    [[POPupSidebarVC Instance].sidebarViewController addMenuProfileWithKey:key image:image placeHolderImage:placeholderImage name:name detailText:detailText fontsize:0];
 }
 
 +(void) addMenuItemWithKey:(NSString*)key title:(NSString*)title image:(NSString*)image fontsize:(float)fontsize
@@ -471,6 +478,14 @@ static POPupSidebarVC *sharedInstance = nil;
     [self addOptionWithKey:key hashkey:@"detailtext" value:detailText];
 }
 
+-(void) addMenuProfileWithKey:(NSString*)key image:(NSString*)image placeHolderImage:(NSString*)imageplaceholder name:(NSString*)name detailText:(NSString*)detailText fontsize:(float)fontsize
+{
+    [self addMenuItemWithKey:key title:name image:image fontsize:fontsize];
+    [self addOptionWithKey:key hashkey:@"type" value:@"profile"];
+    [self addOptionWithKey:key hashkey:@"detailtext" value:detailText];
+    [self addOptionWithKey:key hashkey:@"imageplaceholder" value:imageplaceholder];
+}
+
 -(void) addMenuItemWithKey:(NSString*)key title:(NSString*)title image:(NSString*)image fontsize:(float)fontsize
 {
     if (datasource == nil) {
@@ -640,7 +655,23 @@ static POPupSidebarVC *sharedInstance = nil;
     if ([[item hashtable_GetValueForKey:@"type"] isEqualToString:@"profile"])
     {
         NSString* imagePath = [item hashtable_GetValueForKey:@"image"];
-        UIImageView* profileimage = [FileLib checkPathExisted:imagePath] ? ImageViewWithPath(imagePath) : ImageViewWithImagename(imagePath);
+        UIImageView* profileimage;
+        
+        if ([imagePath.lowercaseString hasPrefix:@"http"]) {
+            profileimage = [UIImageView new];
+            
+            NSString* imageplaceholder = [item hashtable_GetValueForKey:@"imageplaceholder"];
+            
+            if ([StringLib isValid:imageplaceholder]) {
+                
+                [profileimage setImageWithURL:[NSURL URLWithString:imagePath] placeholderImage:[UIImage imageNamed:imageplaceholder]];
+            }else{
+                [profileimage setImageWithURL:[NSURL URLWithString:imagePath]];
+            }
+            
+        }else{
+            profileimage = [FileLib checkPathExisted:imagePath] ? ImageViewWithPath(imagePath) : ImageViewWithImagename(imagePath);
+        }
         
         CGFloat spacing = [POPupSidebarVC Instance].customProfileSpacing > 0 ? [POPupSidebarVC Instance].customProfileSpacing : profile_spacing;
         CGSize profilesize = [POPupSidebarVC Instance].customProfileImageSize > 0 ? CGSizeMake([POPupSidebarVC Instance].customProfileImageSize, [POPupSidebarVC Instance].customProfileImageSize) : profile_imageSize;
