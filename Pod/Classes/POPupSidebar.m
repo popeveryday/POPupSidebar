@@ -494,22 +494,31 @@ static POPupSidebarVC *sharedInstance = nil;
     
     NSMutableArray* ds = sections == nil ? datasource : [datasource objectAtIndex:sections.count-1];
     
+    Hashtable* hashtable = [Hashtable new];
+    NSInteger existedID = -1;
     
     for (int i = 0; i < ds.count; i++)
     {
         Hashtable* hash = [StringLib deparseString:ds[i]];
         if ([[hash hashtable_GetValueForKey:@"key"] isEqualToString:key])
         {
-            [hash hashtable_AddValue:[title stringByReplacingOccurrencesOfString:@"&" withString:@"[AnD]"] forKey:@"title"];
-            [hash hashtable_AddValue:image forKey:@"image"];
-            [hash hashtable_AddValue:[NSString stringWithFormat:@"%f", fontsize] forKey:@"fontsize"];
-            
-            ds[i] = [StringLib parseString: hash];
-            return;
+            existedID = i;
+            hashtable = hash;
+            break;
         }
     }
     
-    [ds addObject: [NSString stringWithFormat:@"key=%@&title=%@&image=%@&fontsize=%f&type=menu", key, title == nil ? @"" : [title stringByReplacingOccurrencesOfString:@"&" withString:@"[AnD]"], image == nil ? @"" : image, fontsize]];
+    [hashtable hashtable_AddValue:[title stringByReplacingOccurrencesOfString:@"&" withString:@"[AnD]"] forKey:@"title"];
+    [hashtable hashtable_AddValue:image forKey:@"image"];
+    [hashtable hashtable_AddValue:[NSString stringWithFormat:@"%f", fontsize] forKey:@"fontsize"];
+    
+    if (existedID >= 0) {
+        ds[existedID] = [StringLib parseString: hashtable];
+    }else{
+        [hashtable hashtable_AddValue:key forKey:@"key"];
+        [hashtable hashtable_AddValue:@"menu" forKey:@"type"];
+        [ds addObject:[StringLib parseString: hashtable]];
+    }
 }
 
 -(void) addMenuActionChangeViewWithKey:(NSString*)key storyboardName:(NSString*) storyboardName storyboardID:(NSString*)storyboardID displayStyle:(enum DisplayStyle) displayStyle
