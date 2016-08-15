@@ -901,14 +901,14 @@ static POPupSidebarVC *sharedInstance = nil;
         [self presentViewWithStorboardName:[action_hash hashtable_GetValueForKey:Action_Storyboard_name] storyboardViewID:[action_hash hashtable_GetValueForKey:Action_Storyboard_id] currentViewController:currentRootViewController displayStyle:displayStyle];
     }
     
-    if(displayStyle == DisplayStyleReplaceNavigationRootVC) _lastActionKey = key;
+    if(displayStyle == DisplayStyleReplaceNavigationRootVC || displayStyle == DisplayStyleReplaceWindowRootVC) _lastActionKey = key;
 }
 
 
 -(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle
 {
     [ViewLib presentViewWithStorboardName:storyboardName storyboardViewID:viewID currentViewController:viewController displayStyle:displayStyle prepareBlock:nil completeBlock:^{
-        if(displayStyle == DisplayStyleReplaceNavigationRootVC) [self reloadMenu];
+        if(displayStyle == DisplayStyleReplaceNavigationRootVC || displayStyle == DisplayStyleReplaceWindowRootVC) [self reloadMenu];
     }];
 }
 
