@@ -238,8 +238,18 @@ static POPupSidebarVC *sharedInstance = nil;
 {
     sidebarState = nil;
     if (_sidebarMenuButton != nil) return;
+    
+    
     NSArray* buttonTypes = @[@"POPupSidebar.bundle/SidebarMenu", @"POPupSidebar.bundle/SidebarMenuCircle"];
-    _sidebarMenuButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed: buttonTypes[_sidebarType] ] style:UIBarButtonItemStylePlain target:self action:@selector(menuAction:)];
+    UIImage* icon = nil;
+    
+    if(self.customSidebarMenuButtonIcon){
+        icon = self.customSidebarMenuButtonIcon;
+    }else{
+        icon = [UIImage imageNamed: buttonTypes[_sidebarType]];
+    }
+    
+    _sidebarMenuButton = [[UIBarButtonItem alloc] initWithImage:icon style:UIBarButtonItemStylePlain target:self action:@selector(menuAction:)];
 }
 
 -(void) menuAction:(id)sender{

@@ -49,7 +49,7 @@ enum POPupSidebarProfileType{
 @property (nonatomic) UIColor* customSectionTextColor;
 
 @property (nonatomic) UIColor* customNavigationBarBgColor;
-
+@property (nonatomic) UIImage* customSidebarMenuButtonIcon;
 
 @property (nonatomic) UIColor* customMenuBgColor;
 @property (nonatomic) UIImage* customMenuBgImage;
