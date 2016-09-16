@@ -168,6 +168,11 @@ static POPupSidebarVC *sharedInstance = nil;
     [[POPupSidebarVC Instance] addSidebarWithViewController:view];
 }
 
++(void) removeSidebarWithViewController:(UIViewController*)view
+{
+    [[POPupSidebarVC Instance] removeSidebarWithViewController:view];
+}
+
 +(void) executeActionWithKey:(NSString*)key exceptLastKey:(BOOL)exceptLastKey
 {
     [[POPupSidebarVC Instance] executeActionWithKey:key exceptLastKey:exceptLastKey];
@@ -229,6 +234,15 @@ static POPupSidebarVC *sharedInstance = nil;
     [view.view addGestureRecognizer:leftEdgeGesture];
     self.currentRootViewController = view;
 }
+
+-(void) removeSidebarWithViewController:(UIViewController*)view
+{
+    if (self.currentRootViewController != nil && [view isEqual:self.currentRootViewController]) {
+        [self.currentRootViewController.view removeGestureRecognizer:leftEdgeGesture];
+        self.currentRootViewController.navigationItem.leftBarButtonItem = nil;
+    }
+}
+
 
 - (void)handleLeftEdgeGesture:(UIScreenEdgePanGestureRecognizer *)gesture {
     [self menuAction:nil];

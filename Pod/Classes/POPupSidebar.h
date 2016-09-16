@@ -101,6 +101,7 @@ enum POPupSidebarProfileType{
 
 +(void) setSidebarMenuType:(enum POPupSidebarMenuType) type;
 +(void) addSidebarWithViewController:(UIViewController*)view;
++(void) removeSidebarWithViewController:(UIViewController*)view;
 +(void) removeMenuItemWithKey:(NSString*)key;
 +(void) reloadMenu;
 +(NSString*) lastSelectedKey;
