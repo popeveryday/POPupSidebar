@@ -22,6 +22,7 @@
 +(BOOL)saveImageToPath:(NSString*) toPath image:(UIImage*) image qualityRatio:(CGFloat) ratio;
 +(UIImage*)imageScaleAspectToMaxSize:(CGFloat)newSize image:(UIImage*) image;
 +(UIImage*)imageScaleAndCropToMaxSize:(CGSize)newSize image:(UIImage*) image;
++(UIImage*)resizeImage:(UIImage*)image newSize:(CGSize)newSize;
 
 +(void)setImageScale:(UIImageView*) image scale:(float) scale;
 +(CGRect)calculateScaleImage: (UIImage*) sourceImage scaledToWidth: (float) width;
@@ -37,11 +38,14 @@
 +(UIImage*)getDefaultFileTypeIcon:(NSString*) filename isFolder:(BOOL)isFolder isIpad:(BOOL)isIpad;
 +(NSString*)getDefaultFileTypeString:(NSString*) filename isFolder:(BOOL)isFolder isIpad:(BOOL)isIpad;
 
-+(UIImage*)createCanvasImageWithColor:(UIColor*)color size:(CGSize)size;
++(UIImage*)createCanvasImageWithColor:(UIColor*)color size:(CGSize)size isTransparent:(BOOL)isTransparent;
 +(UIImage*)drawText:(NSString*) text font:(UIFont*)font color:(UIColor*)color inImage:(UIImage*) image atPoint:(CGPoint) point;
 
 +(UIImage*)imageNamed:(NSString*)name fromBundleName:(NSString*)bundleName;
 +(UIImage*)imageMaskedWithColor:(UIColor *)maskColor image:(UIImage*)image;
 
 +(UIImage*)fixOrientation:(UIImage*)image;
+
+//blur view bg for example
++(UIImage *)blurImage:(UIImage *)sourceImage blurValue:(NSInteger)blurValue destinationSize:(CGSize)size;
 @end

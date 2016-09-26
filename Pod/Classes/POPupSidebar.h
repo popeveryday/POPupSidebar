@@ -59,6 +59,9 @@ enum POPupSidebarProfileType{
 @property (nonatomic) UIColor* customMenuItemTextColor;
 @property (nonatomic) UIColor* customMenuItemActiveTextColor;
 @property (nonatomic) UIColor* customMenuItemSeparatorColor;
+@property (nonatomic) CGFloat customMenuItemIconPaddingLeft;
+@property (nonatomic) CGFloat customMenuItemIconContainerWidth;
+@property (nonatomic) CGFloat customMenuItemTitlePaddingLeft;
 
 @property (nonatomic) UIColor* customMenuNotificationTextColor;
 @property (nonatomic) UIColor* customMenuNotificationBgColor;
@@ -75,6 +78,8 @@ enum POPupSidebarProfileType{
 @property (nonatomic) UIColor* customProfileTextColor;
 @property (nonatomic) UIColor* customProfileDetailTextColor;
 @property (nonatomic) UIImage* customProfileBgImage;
+
+
 
 @property (nonatomic) BOOL isAllowReloadLastAction; //if execute action that are current display
 
@@ -139,4 +144,15 @@ enum POPupSidebarProfileType{
 -(void) reloadMenu;
 -(void) cleanup;
 -(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle;
+@end
+
+@interface POPupMenuCell : UITableViewCell
+
+@property (nonatomic, weak) UIImageView* iconView;
+@property (nonatomic, weak) UILabel* titleView;
+
+@property (nonatomic) CGFloat iconPaddingLeft;
+@property (nonatomic) CGFloat iconContainerWidth;
+@property (nonatomic) CGFloat titlePaddingLeft;
+
 @end

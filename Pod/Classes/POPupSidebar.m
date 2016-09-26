@@ -9,6 +9,7 @@
 #import "POPupSidebar.h"
 #import <AFNetworking/AFNetworking.h>
 #import <AFNetworking/UIImageView+AFNetworking.h>
+#import <PureLayout/PureLayout.h>
 
 #define profile_spacing 15
 #define profile_imageSize CGSizeMake(75, 75)
@@ -766,29 +767,54 @@ static POPupSidebarVC *sharedInstance = nil;
     }
     
     
-    NSString* fontsize = [item hashtable_GetValueForKey:@"fontsize"];
-    if ([StringLib isValid:fontsize] && [fontsize floatValue] > 0) {
-        cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:[fontsize floatValue] ];
-    }
+    //custom icon and title
+    UIView* iconContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    [cell.contentView addSubview:iconContainer];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:[POPupSidebarVC Instance].customMenuItemIconPaddingLeft];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
+    [iconContainer autoSetDimension:ALDimensionWidth toSize:[POPupSidebarVC Instance].customMenuItemIconContainerWidth > 0 ? [POPupSidebarVC Instance].customMenuItemIconContainerWidth : cell.frame.size.height];
     
-    cell.textLabel.text = LocalizedText([[item hashtable_GetValueForKey:@"title"] stringByReplacingOccurrencesOfString:@"[AnD]" withString:@"&"],nil);
-    
+    UIImageView* iconView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    [iconContainer addSubview:iconView];
+    [iconView autoAlignAxisToSuperviewAxis:ALAxisVertical];
+    [iconView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
     NSString* image = [item hashtable_GetValueForKey:@"image"];
     if ([StringLib isValid:image]){
         
         if ([FileLib checkPathExisted:image]) {
-            cell.imageView.image = [UIImage imageWithContentsOfFile:image];
+            iconView.image = [UIImage imageWithContentsOfFile:image];
         }else{
-            cell.imageView.image = [UIImage imageNamed:image];
+            iconView.image = [UIImage imageNamed:image];
         }
         
         if ([item.keys containsObject:@"cornerRadius"]) {
-            cell.imageView.clipsToBounds = YES;
-            cell.imageView.layer.cornerRadius = [[item hashtable_GetValueForKey:@"cornerRadius"] floatValue];
+            iconView.clipsToBounds = YES;
+            iconView.layer.cornerRadius = [[item hashtable_GetValueForKey:@"cornerRadius"] floatValue];
         }
-        
+        [iconView autoSetDimensionsToSize:iconView.image.size];
     }
-    else cell.imageView.image = nil;
+    else iconView.image = nil;
+    
+    
+    UILabel* titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    [cell.contentView addSubview:titleView];
+    [titleView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
+    [titleView autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
+    [titleView autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:0];
+    [titleView autoPinEdge:ALEdgeLeft toEdge:ALEdgeRight ofView:iconContainer withOffset:[POPupSidebarVC Instance].customMenuItemTitlePaddingLeft];
+    
+    NSString* fontsize = [item hashtable_GetValueForKey:@"fontsize"];
+    if ([StringLib isValid:fontsize] && [fontsize floatValue] > 0) {
+        titleView.font = [UIFont fontWithName:titleView.font.fontName size:[fontsize floatValue] ];
+    }
+    
+    titleView.text = LocalizedText([[item hashtable_GetValueForKey:@"title"] stringByReplacingOccurrencesOfString:@"[AnD]" withString:@"&"],nil);
+    
+    
+    
+    
+    
     
     
     UILabel* notificationLabel = cell.accessoryView == nil ? nil : (UILabel*)cell.accessoryView;
@@ -956,4 +982,45 @@ static POPupSidebarVC *sharedInstance = nil;
 }
 
 @end
+
+
+@implementation POPupMenuCell
+
+-(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    return self;
+}
+
+-(void)iniCellWithImage:(UIImage*)img
+{
+    UIView* iconContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    [self.contentView addSubview:iconContainer];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:self.iconPaddingLeft];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
+    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
+    [iconContainer autoSetDimension:ALDimensionWidth toSize:self.iconContainerWidth];
+    
+    self.iconView = [[UIImageView alloc] initWithImage:img];
+    [iconContainer addSubview:self.iconView];
+    [self.iconView autoSetDimensionsToSize:img.size];
+    [self.iconView autoAlignAxisToSuperviewAxis:ALAxisVertical];
+    [self.iconView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
+    
+    self.titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    [self.contentView addSubview:self.titleView];
+    
+    
+}
+
+
+
+@end
+
+
+
+
 
