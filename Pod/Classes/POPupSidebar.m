@@ -744,6 +744,7 @@ static POPupSidebarVC *sharedInstance = nil;
     {
         cell.backgroundColor = [POPupSidebarVC Instance].customLineBreakBgColor == nil ? [UIColor grayColor] : [POPupSidebarVC Instance].customLineBreakBgColor;
         cell.separatorInset = UIEdgeInsetsMake(0, cell.bounds.size.width, 0, 0);
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
         return cell;
     }
     
@@ -871,7 +872,7 @@ static POPupSidebarVC *sharedInstance = nil;
     
     NSString* key = [item hashtable_GetValueForKey:@"key"];
     
-    if (![StringLib isValid:key]) {
+    if (![StringLib isValid:key] || [[item hashtable_GetValueForKey:@"title"] isEqualToString:@"[LINEBREAK]"]) {
         return;
     }
     
