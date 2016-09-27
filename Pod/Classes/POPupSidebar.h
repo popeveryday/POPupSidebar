@@ -146,13 +146,3 @@ enum POPupSidebarProfileType{
 -(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle;
 @end
 
-@interface POPupMenuCell : UITableViewCell
-
-@property (nonatomic, weak) UIImageView* iconView;
-@property (nonatomic, weak) UILabel* titleView;
-
-@property (nonatomic) CGFloat iconPaddingLeft;
-@property (nonatomic) CGFloat iconContainerWidth;
-@property (nonatomic) CGFloat titlePaddingLeft;
-
-@end

@@ -981,41 +981,6 @@ static POPupSidebarVC *sharedInstance = nil;
     actions = nil;
 }
 
-@end
-
-
-@implementation POPupMenuCell
-
--(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
-    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
-    if (self) {
-        self.backgroundColor = [UIColor clearColor];
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
-    }
-    return self;
-}
-
--(void)iniCellWithImage:(UIImage*)img
-{
-    UIView* iconContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
-    [self.contentView addSubview:iconContainer];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:self.iconPaddingLeft];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
-    [iconContainer autoSetDimension:ALDimensionWidth toSize:self.iconContainerWidth];
-    
-    self.iconView = [[UIImageView alloc] initWithImage:img];
-    [iconContainer addSubview:self.iconView];
-    [self.iconView autoSetDimensionsToSize:img.size];
-    [self.iconView autoAlignAxisToSuperviewAxis:ALAxisVertical];
-    [self.iconView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
-    
-    self.titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
-    [self.contentView addSubview:self.titleView];
-    
-    
-}
-
 
 
 @end
