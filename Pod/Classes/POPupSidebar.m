@@ -10,11 +10,11 @@
 #import <AFNetworking/AFNetworking.h>
 #import <AFNetworking/UIImageView+AFNetworking.h>
 
-#define profile_spacing 15
-#define profile_imageSize CGSizeMake(75, 75)
-#define profile_titleHeight 20
-#define profile_detailHeight 20
-#define profile_textSpacing 5
+#define profile_spacing 15.0f
+#define profile_imageSize CGSizeMake(75.0f, 75.0f)
+#define profile_titleHeight 20.0f
+#define profile_detailHeight 20.0f
+#define profile_textSpacing 5.0f
 
 @interface POPupSidebarVC ()
 
