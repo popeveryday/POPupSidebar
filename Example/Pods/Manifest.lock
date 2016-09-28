@@ -21,12 +21,12 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - MBProgressHUD (0.9.2)
-  - POPLib (0.1.86):
+  - POPLib (0.1.87):
     - MBProgressHUD (~> 0.9)
-  - POPupSidebar (0.1.28):
+    - PureLayout
+  - POPupSidebar (0.1.33):
     - AFNetworking (~> 2.5)
     - POPLib (~> 0.1)
-    - PureLayout
   - PureLayout (3.0.2)
 
 DEPENDENCIES:
@@ -39,8 +39,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
-  POPLib: 9fdec532ef4fd86514a1a2e4ae414835c3c46891
-  POPupSidebar: 49785e04bd6e195cbb13adb8af9cdccf7150eaa0
+  POPLib: f9761d31e7595888153a4bc7c7e4d9596e7cae33
+  POPupSidebar: 691ee78be0644b700cb46011694db68dbe25cd19
   PureLayout: 4d550abe49a94f24c2808b9b95db9131685fe4cd
 
 COCOAPODS: 0.39.0

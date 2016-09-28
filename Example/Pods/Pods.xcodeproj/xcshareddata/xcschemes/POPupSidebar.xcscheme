@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'CF49F6D04FCDCB437F7BC1DF'
+               BlueprintIdentifier = 'B74E924848E26384CEFC9FE6'
                BlueprintName = 'POPupSidebar'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'POPupSidebar.framework'>

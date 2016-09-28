@@ -22,11 +22,11 @@ enum POPupSidebarNavigationPosition
     POPupSidebarNavigationPositionRight,
 };
 
-enum POPupSidebarProfileType{
-    POPupSidebarProfileTypeWide,
-    POPupSidebarProfileTypeTall,
+enum POPupSidebarProfileType
+{
+    POPupSidebarProfileTypeTopToBottom,
+    POPupSidebarProfileTypeLeftToRight,
 };
-
 
 
 

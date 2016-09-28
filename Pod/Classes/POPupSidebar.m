@@ -9,7 +9,6 @@
 #import "POPupSidebar.h"
 #import <AFNetworking/AFNetworking.h>
 #import <AFNetworking/UIImageView+AFNetworking.h>
-#import <PureLayout/PureLayout.h>
 
 #define profile_spacing 15
 #define profile_imageSize CGSizeMake(75, 75)
@@ -730,12 +729,31 @@ static POPupSidebarVC *sharedInstance = nil;
         [title setFont:[UIFont boldSystemFontOfSize:title.font.pointSize]];
         [cell addSubview:title];
         
+        UILabel* detail;
         if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]]) {
-            UILabel* detail = [[UILabel alloc] initWithFrame:CGRectMake(spacing, title.frame.origin.y + title.frame.size.height + profile_textSpacing, [POPupSidebarVC sidebarWidth], profile_detailHeight)];
+            detail = [[UILabel alloc] initWithFrame:CGRectMake(spacing, title.frame.origin.y + title.frame.size.height + profile_textSpacing, [POPupSidebarVC sidebarWidth], profile_detailHeight)];
             detail.text = [item hashtable_GetValueForKey:@"detailtext"];
             detail.textColor = [POPupSidebarVC Instance].customProfileDetailTextColor != nil ? [POPupSidebarVC Instance].customProfileDetailTextColor : [UIColor grayColor];
             [cell addSubview:detail];
         }
+        
+        switch ([POPupSidebarVC Instance].profileType)
+        {
+            case POPupSidebarProfileTypeTopToBottom:
+                [ViewLib updateLayoutForView:profileimage superEdge:[NSString stringWithFormat:@"L%fT%fW%fE%f", spacing, spacing, profilesize.width, profilesize.height] otherEdge:nil];
+                [ViewLib updateLayoutForView:title superEdge:[NSString stringWithFormat:@"L%fR%fE%f", spacing, spacing, profile_titleHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: profileimage}];
+                if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]])
+                    [ViewLib updateLayoutForView:detail superEdge:[NSString stringWithFormat:@"L%fR%fE%f", spacing, spacing, profile_detailHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: title}];
+                break;
+                
+            case POPupSidebarProfileTypeLeftToRight:
+                [ViewLib updateLayoutForView:profileimage superEdge:[NSString stringWithFormat:@"L%fT%fW%fE%f", spacing, spacing, profilesize.width, profilesize.height] otherEdge:nil];
+                [ViewLib updateLayoutForView:title superEdge:[NSString stringWithFormat:@"R%fE%fH", spacing, spacing, profile_titleHeight] otherEdge:@{[NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
+                if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]])
+                    [ViewLib updateLayoutForView:detail superEdge:[NSString stringWithFormat:@"R%fE%f", spacing, spacing, profile_detailHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: title, [NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
+                break;
+        }
+
         
         return cell;
     }
@@ -771,15 +789,12 @@ static POPupSidebarVC *sharedInstance = nil;
     //custom icon and title
     UIView* iconContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
     [cell.contentView addSubview:iconContainer];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:[POPupSidebarVC Instance].customMenuItemIconPaddingLeft];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
-    [iconContainer autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
-    [iconContainer autoSetDimension:ALDimensionWidth toSize:[POPupSidebarVC Instance].customMenuItemIconContainerWidth > 0 ? [POPupSidebarVC Instance].customMenuItemIconContainerWidth : cell.frame.size.height];
+    [ViewLib updateLayoutForView:iconContainer superEdge:[NSString stringWithFormat:@"T0B0L%fW%f",[POPupSidebarVC Instance].customMenuItemIconPaddingLeft, [POPupSidebarVC Instance].customMenuItemIconContainerWidth > 0 ? [POPupSidebarVC Instance].customMenuItemIconContainerWidth : cell.frame.size.height] otherEdge:nil];
+    
     
     UIImageView* iconView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
     [iconContainer addSubview:iconView];
-    [iconView autoAlignAxisToSuperviewAxis:ALAxisVertical];
-    [iconView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
+    NSString* iconViewSuperEdge = @"VH";
     NSString* image = [item hashtable_GetValueForKey:@"image"];
     if ([StringLib isValid:image]){
         
@@ -794,16 +809,16 @@ static POPupSidebarVC *sharedInstance = nil;
             iconView.layer.cornerRadius = [[item hashtable_GetValueForKey:@"cornerRadius"] floatValue];
         }
         [iconView autoSetDimensionsToSize:iconView.image.size];
+        iconViewSuperEdge = [NSString stringWithFormat:@"VHW%fE%f",iconView.image.size.width,iconView.image.size.height];
     }
     else iconView.image = nil;
+    [ViewLib updateLayoutForView:iconView superEdge:iconViewSuperEdge otherEdge:nil];
     
     
     UILabel* titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
     [cell.contentView addSubview:titleView];
-    [titleView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:0];
-    [titleView autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0];
-    [titleView autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:0];
-    [titleView autoPinEdge:ALEdgeLeft toEdge:ALEdgeRight ofView:iconContainer withOffset:[POPupSidebarVC Instance].customMenuItemTitlePaddingLeft];
+    [ViewLib updateLayoutForView:titleView superEdge:@"T0B0R0" otherEdge:@{[NSString stringWithFormat:@"L%f", [POPupSidebarVC Instance].customMenuItemTitlePaddingLeft]: iconContainer}];
+    
     
     NSString* fontsize = [item hashtable_GetValueForKey:@"fontsize"];
     if ([StringLib isValid:fontsize] && [fontsize floatValue] > 0) {
@@ -927,11 +942,17 @@ static POPupSidebarVC *sharedInstance = nil;
         CGFloat spacing = [POPupSidebarVC Instance].customProfileSpacing > 0 ? [POPupSidebarVC Instance].customProfileSpacing : profile_spacing;
         CGSize profilesize = [POPupSidebarVC Instance].customProfileImageSize > 0 ? CGSizeMake([POPupSidebarVC Instance].customProfileImageSize, [POPupSidebarVC Instance].customProfileImageSize) : profile_imageSize;
         
-        if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]]) {
-            return profilesize.height + (spacing*2) + profile_titleHeight + profile_detailHeight + (profile_textSpacing*2);
+        if ([POPupSidebarVC Instance].profileType == POPupSidebarProfileTypeTopToBottom) {
+            
+            if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]]) {
+                return profilesize.height + (spacing*2) + profile_titleHeight + profile_detailHeight + (profile_textSpacing*2);
+            }
+            
+            return profilesize.height + (spacing*2) + profile_titleHeight + profile_textSpacing;
+        }else{
+            return profilesize.height + (spacing*2);
         }
         
-        return profilesize.height + (spacing*2) + profile_titleHeight + profile_textSpacing;
     }
     
     return [POPupSidebarVC Instance].customMenuHeight > 0 ? [POPupSidebarVC Instance].customMenuHeight : 40;
