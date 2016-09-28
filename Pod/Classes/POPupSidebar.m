@@ -748,9 +748,9 @@ static POPupSidebarVC *sharedInstance = nil;
                 
             case POPupSidebarProfileTypeLeftToRight:
                 [ViewLib updateLayoutForView:profileimage superEdge:[NSString stringWithFormat:@"L%fT%fW%fE%f", spacing, spacing, profilesize.width, profilesize.height] otherEdge:nil];
-                [ViewLib updateLayoutForView:title superEdge:[NSString stringWithFormat:@"R%fE%fH", spacing, spacing, profile_titleHeight] otherEdge:@{[NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
+                [ViewLib updateLayoutForView:title superEdge:[NSString stringWithFormat:@"R%fE%fH", spacing, profile_titleHeight] otherEdge:@{[NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
                 if ( [StringLib isValid:[item hashtable_GetValueForKey:@"detailtext"]])
-                    [ViewLib updateLayoutForView:detail superEdge:[NSString stringWithFormat:@"R%fE%f", spacing, spacing, profile_detailHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: title, [NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
+                    [ViewLib updateLayoutForView:detail superEdge:[NSString stringWithFormat:@"R%fE%f", spacing, profile_detailHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: title, [NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
                 break;
         }
 
