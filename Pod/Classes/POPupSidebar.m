@@ -270,10 +270,42 @@ static POPupSidebarVC *sharedInstance = nil;
     [POPupSidebarVC showMenu];
 }
 
+#pragma PopUpSidebar delegate functions
+
 -(void) popUpDidSelectedItemWithKey:(NSString *)key currentViewController:(UIViewController *)view
 {
+    BOOL isAllowToSelectedAndToggleMenu = YES;
+    
+    if (_popUpSidebarDelegate != nil && [_popUpSidebarDelegate respondsToSelector:@selector(popUpWillSelectedItemWithKey:currentViewController:)])
+    {
+        isAllowToSelectedAndToggleMenu = [_popUpSidebarDelegate popUpWillSelectedItemWithKey:key currentViewController:_currentRootViewController];
+    }
+    
+    if (!isAllowToSelectedAndToggleMenu) return;
+        
     [self toggleSidebarMenuExecuteAfterHideWithKey:key];
 }
+
+-(UITableViewCell *)popUpReturnCustomCellAtIndexPath:(NSIndexPath *)indexPath key:(NSString *)key rowData:(Hashtable *)rowData
+{
+    if (_popUpSidebarDelegate != nil && [_popUpSidebarDelegate respondsToSelector:@selector(popUpReturnCustomCellAtIndexPath:key:rowData:)])
+    {
+        return [_popUpSidebarDelegate popUpReturnCustomCellAtIndexPath:indexPath key:key rowData:rowData];
+    }
+    
+    return nil;
+}
+
+-(void) popUpModifyCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath key:(NSString *)key rowData:(Hashtable *)rowData{
+    if (_popUpSidebarDelegate != nil && [_popUpSidebarDelegate respondsToSelector:@selector(popUpModifyCell:atIndexPath:key:rowData:)])
+    {
+        [_popUpSidebarDelegate popUpModifyCell:cell atIndexPath:indexPath key:key rowData:rowData];
+    }
+}
+
+
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -346,7 +378,6 @@ static POPupSidebarVC *sharedInstance = nil;
 
 -(void) toggleSidebarMenuExecuteAfterHideWithKey:(NSString*)key
 {
-    
     float nextX = 0;
     
     if ([sidebarState isEqualToString:@"Hide"] || sidebarState == nil)
@@ -368,6 +399,7 @@ static POPupSidebarVC *sharedInstance = nil;
     } completion:^(BOOL completed){
         sidebarState = [sidebarState stringByReplacingOccurrencesOfString:@"Moving-" withString:@""];
         if ([sidebarState isEqualToString:@"Hide"]) {
+            
             [self removeSidebar];
             
             if ([StringLib isValid:key])
@@ -675,12 +707,21 @@ static POPupSidebarVC *sharedInstance = nil;
     return sections == nil ? datasource.count : [((NSMutableArray*)[datasource objectAtIndex:section]) count];
 }
 
--(UITableViewCell*) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+-(UITableViewCell*) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     static NSString *identifier = @"Cell";
+    UITableViewCell *cell;
     
     Hashtable* item = [StringLib deparseString: sections == nil ? datasource[indexPath.row] : datasource[indexPath.section][indexPath.row] ];
     
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+    
+    if (_popUpSidebarDelegate && [_popUpSidebarDelegate respondsToSelector:@selector(popUpReturnCustomCellAtIndexPath:key:rowData:)]) {
+        cell = [_popUpSidebarDelegate popUpReturnCustomCellAtIndexPath:indexPath key:[item hashtable_GetValueForKey:@"key"] rowData:item];
+        if(cell) return cell;
+    }
+    
+    
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     
     cell.contentView.backgroundColor = [UIColor clearColor];
     cell.backgroundColor = [POPupSidebarVC Instance].customMenuItemBgColor != nil ? [POPupSidebarVC Instance].customMenuItemBgColor : [UIColor clearColor];
@@ -753,7 +794,10 @@ static POPupSidebarVC *sharedInstance = nil;
                     [ViewLib updateLayoutForView:detail superEdge:[NSString stringWithFormat:@"R%fE%f", spacing, profile_detailHeight] otherEdge:@{[NSString stringWithFormat:@"T%f",profile_textSpacing]: title, [NSString stringWithFormat:@"L%f",profile_textSpacing]: profileimage}];
                 break;
         }
-
+        
+        if (_popUpSidebarDelegate && [_popUpSidebarDelegate respondsToSelector:@selector(popUpModifyCell:atIndexPath:key:rowData:)]) {
+            [_popUpSidebarDelegate popUpModifyCell:cell atIndexPath:indexPath key:[item hashtable_GetValueForKey:@"key"] rowData:item];
+        }
         
         return cell;
     }
@@ -763,6 +807,11 @@ static POPupSidebarVC *sharedInstance = nil;
         cell.backgroundColor = [POPupSidebarVC Instance].customLineBreakBgColor == nil ? [UIColor grayColor] : [POPupSidebarVC Instance].customLineBreakBgColor;
         cell.separatorInset = UIEdgeInsetsMake(0, cell.bounds.size.width, 0, 0);
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        if (_popUpSidebarDelegate && [_popUpSidebarDelegate respondsToSelector:@selector(popUpModifyCell:atIndexPath:key:rowData:)]) {
+            [_popUpSidebarDelegate popUpModifyCell:cell atIndexPath:indexPath key:[item hashtable_GetValueForKey:@"key"] rowData:item];
+        }
+        
         return cell;
     }
     
@@ -788,6 +837,7 @@ static POPupSidebarVC *sharedInstance = nil;
     
     //custom icon and title
     UIView* iconContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    iconContainer.tag = 100;
     [cell.contentView addSubview:iconContainer];
     [ViewLib updateLayoutForView:iconContainer superEdge:[NSString stringWithFormat:@"T0B0L%fW%f",[POPupSidebarVC Instance].customMenuItemIconPaddingLeft, [POPupSidebarVC Instance].customMenuItemIconContainerWidth > 0 ? [POPupSidebarVC Instance].customMenuItemIconContainerWidth : cell.frame.size.height] otherEdge:nil];
     
@@ -816,6 +866,7 @@ static POPupSidebarVC *sharedInstance = nil;
     
     
     UILabel* titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GC_ScreenWidth, 100)];
+    titleView.tag = 101;
     [cell.contentView addSubview:titleView];
     [ViewLib updateLayoutForView:titleView superEdge:@"T0B0R0" otherEdge:@{[NSString stringWithFormat:@"L%f", [POPupSidebarVC Instance].customMenuItemTitlePaddingLeft]: iconContainer}];
     
@@ -861,6 +912,11 @@ static POPupSidebarVC *sharedInstance = nil;
     else if(notificationLabel != nil)
     {
         [notificationLabel setHidden:YES];
+    }
+    
+    
+    if (_popUpSidebarDelegate && [_popUpSidebarDelegate respondsToSelector:@selector(popUpModifyCell:atIndexPath:key:rowData:)]) {
+        [_popUpSidebarDelegate popUpModifyCell:cell atIndexPath:indexPath key:[item hashtable_GetValueForKey:@"key"] rowData:item];
     }
     
     return cell;
