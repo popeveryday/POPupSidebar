@@ -1,31 +1,25 @@
 PODS:
-  - AFNetworking (2.6.3):
-    - AFNetworking/NSURLConnection (= 2.6.3)
-    - AFNetworking/NSURLSession (= 2.6.3)
-    - AFNetworking/Reachability (= 2.6.3)
-    - AFNetworking/Security (= 2.6.3)
-    - AFNetworking/Serialization (= 2.6.3)
-    - AFNetworking/UIKit (= 2.6.3)
-  - AFNetworking/NSURLConnection (2.6.3):
+  - AFNetworking (3.1.0):
+    - AFNetworking/NSURLSession (= 3.1.0)
+    - AFNetworking/Reachability (= 3.1.0)
+    - AFNetworking/Security (= 3.1.0)
+    - AFNetworking/Serialization (= 3.1.0)
+    - AFNetworking/UIKit (= 3.1.0)
+  - AFNetworking/NSURLSession (3.1.0):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/NSURLSession (2.6.3):
-    - AFNetworking/Reachability
-    - AFNetworking/Security
-    - AFNetworking/Serialization
-  - AFNetworking/Reachability (2.6.3)
-  - AFNetworking/Security (2.6.3)
-  - AFNetworking/Serialization (2.6.3)
-  - AFNetworking/UIKit (2.6.3):
-    - AFNetworking/NSURLConnection
+  - AFNetworking/Reachability (3.1.0)
+  - AFNetworking/Security (3.1.0)
+  - AFNetworking/Serialization (3.1.0)
+  - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - MBProgressHUD (0.9.2)
-  - POPLib (0.1.87):
-    - MBProgressHUD (~> 0.9)
+  - MBProgressHUD (1.0.0)
+  - POPLib (0.2.32):
+    - MBProgressHUD (~> 1.0)
     - PureLayout
-  - POPupSidebar (0.1.33):
-    - AFNetworking (~> 2.5)
+  - POPupSidebar (0.1.41):
+    - AFNetworking
     - POPLib (~> 0.1)
   - PureLayout (3.0.2)
 
@@ -37,10 +31,12 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
-  MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
-  POPLib: f9761d31e7595888153a4bc7c7e4d9596e7cae33
-  POPupSidebar: 691ee78be0644b700cb46011694db68dbe25cd19
+  AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
+  POPLib: 1332f3ae69af62226e06589d44bc56909a87df69
+  POPupSidebar: fb453a54ad4e906e4e8a4592cf1915eb303059aa
   PureLayout: 4d550abe49a94f24c2808b9b95db9131685fe4cd
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 075b2da8f0fa922e689368cfc67ff3b04444013d
+
+COCOAPODS: 1.3.1

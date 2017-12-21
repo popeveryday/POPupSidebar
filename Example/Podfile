@@ -1,12 +1,13 @@
-source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
-target 'POPupSidebar_Example', :exclusive => true do
+target 'POPupSidebar_Example' do
   pod 'POPupSidebar', :path => '../'
 end
 
-target 'POPupSidebar_Tests', :exclusive => true do
+target 'POPupSidebar_Tests' do
   pod 'POPupSidebar', :path => '../'
 
   
 end
+
+

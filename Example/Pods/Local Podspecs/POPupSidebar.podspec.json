@@ -1,6 +1,6 @@
 {
   "name": "POPupSidebar",
-  "version": "0.1.33",
+  "version": "0.1.41",
   "summary": "Quick custom sidebar for Object-C project.",
   "homepage": "https://github.com/popeveryday/POPupSidebar",
   "license": "MIT",
@@ -9,7 +9,7 @@
   },
   "source": {
     "git": "https://github.com/popeveryday/POPupSidebar.git",
-    "tag": "0.1.33"
+    "tag": "0.1.41"
   },
   "platforms": {
     "ios": "7.1"
@@ -22,7 +22,7 @@
       "~> 0.1"
     ],
     "AFNetworking": [
-      "~> 2.5"
+
     ]
   }
 }
