@@ -35,8 +35,9 @@ enum POPupSidebarProfileType
 @protocol POPupSidebarDelegate <NSObject>
 
 -(void) popUpDidSelectedItemWithKey:(NSString*)key currentViewController:(UIViewController*)view;
--(BOOL) popUpWillSelectedItemWithKey:(NSString*)key currentViewController:(UIViewController*)view;
 
+@optional
+-(BOOL) popUpWillSelectedItemWithKey:(NSString*)key currentViewController:(UIViewController*)view;
 -(void) popUpModifyCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath key:(NSString*)key rowData:(Hashtable*)rowData;
 -(UITableViewCell*) popUpReturnCustomCellAtIndexPath:(NSIndexPath*)indexPath key:(NSString*)key rowData:(Hashtable*)rowData;
 
