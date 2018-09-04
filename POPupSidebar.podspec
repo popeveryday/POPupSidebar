@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name             = "POPupSidebar"
-s.version          = "0.1.43"
+s.version          = "0.2.0"
 s.summary          = "Quick custom sidebar for Object-C project."
 s.homepage         = "https://github.com/popeveryday/POPupSidebar"
 s.license          = 'MIT'

@@ -13,6 +13,8 @@
 #import "CommonLib.h"
 #import <PureLayout/PureLayout.h>
 
+typedef void (^AlertViewCompletionBlock)(NSString* buttonTitle, NSString* alertTitle);
+
 enum DisplayStyle{
     DisplayStyleReplaceNavigationRootVC,
     DisplayStylePush,
@@ -29,6 +31,12 @@ enum ALControlType{
     ALControlTypeTextField,
     ALControlTypeProgressView,
     ALControlTypeVisualEffectView,
+    ALControlTypeColorLabel,
+    ALControlTypeScrollView,
+    ALControlTypePageView,
+    ALControlTypeCollectionView,
+    ALControlTypeSlider,
+    ALControlTypeSwitch,
 };
 
 
@@ -68,7 +76,7 @@ enum ALControlType{
 
 +(void)slideViewUpForTextfield:(UITextField*) textField viewContainer:(UIView*)view isOn:(BOOL)isOn;
 
-+(void)createSnowInView:(UIView*)view;
++(CAEmitterLayer*) createSnowInView:(UIView*)view withImage:(UIImage*)snowImage;
 
 +(UIDocumentInteractionController*)showOpenInWithFile:(NSString*)filePath container:(UIView*)container delegate:(id<UIDocumentInteractionControllerDelegate>)delegate;
 
@@ -77,6 +85,8 @@ enum ALControlType{
 +(void)fixNavigationBarCoverContent:(UIViewController*) controller;
 
 +(void)fixNavigationBarCoverContent:(UIViewController*) controller isFixed:(BOOL)isFixed;
+
++(void)fixNavigationBar:(UINavigationBar*)navbar translucentColor:(UIColor*)barColor;
 
 +(UIEdgeInsets)collectionEdgeInsectFromHashString:(NSString*) hashString;
 
@@ -90,9 +100,9 @@ enum ALControlType{
 
 +(BOOL)isRootViewController:(UIViewController*)controller;
 
-+(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)())completeBlock;
++(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)(void))completeBlock;
 
-+(void)presentViewController:(UIViewController*)nextViewController fromViewController:(UIViewController*)currentViewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)())completeBlock;
++(void)presentViewController:(UIViewController*)nextViewController fromViewController:(UIViewController*)currentViewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)(void))completeBlock;
 
 +(void)displayPopoverController:(UIViewController*)view container:(UIViewController<UIPopoverControllerDelegate> *)container displayTarget:(id) displayTarget isIphonePushView:(BOOL) isIphonePushView;
 
@@ -102,10 +112,33 @@ enum ALControlType{
 
 +(id) initAutoLayoutWithType:(enum ALControlType)type viewContainer:(UIView*)viewContainer superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge;
 
++(id) initAutoLayoutWithType:(enum ALControlType)type viewContainer:(UIView*)viewContainer superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge viewName:(NSString*)viewName;
+
 +(void) updateLayoutForView:(ALView*)view superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge;
 
 +(NSString*) pinEdgeWithView:(UIView*)view edgeStr:(NSString*)edgeStr otherView:(UIView*)otherView;
 
 +(CGFloat)getCustomPaddingSuperEdge:(NSString*)key fullText:(NSString*)fullText;
 
++(CAShapeLayer*) drawCircleProgressWithView:(UIView*)view progress:(CGFloat)progress size:(CGSize)size strokeColor:(UIColor*)strokeColor fillColor:(UIColor*)fillColor lineWidth:(CGFloat)lineWidth;
+
++(CAShapeLayer*) drawCircleProgress:(CGFloat)progress size:(CGSize)size strokeColor:(UIColor*)strokeColor fillColor:(UIColor*)fillColor lineWidth:(CGFloat)lineWidth;
+
++ (void)alertWithTitle:(NSString*) title message:(NSString*) message fromViewController:(UIViewController*)fromViewController callback:(AlertViewCompletionBlock)callback cancelButtonTitle:(NSString*) cancelButtonTitle otherButtonTitles:(NSString*) otherButtonTitles,...;
+
++(BOOL)alertNetworkConnectionStatusWithTitle:(NSString*) title message:(NSString*)message fromViewController:(UIViewController*)vc;
+
++(BOOL)alertNetworkConnectionStatusFromViewController:(UIViewController*)vc;
+
++(NSArray*)alertUpgrageFeaturesWithContainer:(id)container isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback;
+
++(NSArray*)alertUpgrageFeaturesUnlimitWithContainer:(id)container limitMessage:(NSString*)limitMessage isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback;
+
++(NSArray*)alertUpgrageProVersionWithContainer:(id)container featuresMessage:(NSString*)featuresMessage isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback;
+
++ (void)alertWithTitle:(NSString*)title message:(NSString*) message;
+
++ (void)alert:(NSString*) message;
+
 @end
+

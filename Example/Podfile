@@ -2,12 +2,11 @@ use_frameworks!
 
 target 'POPupSidebar_Example' do
   pod 'POPupSidebar', :path => '../'
+  target 'POPupSidebar_Tests' do
+  	inherit! :search_paths
+  end
 end
 
-target 'POPupSidebar_Tests' do
-  pod 'POPupSidebar', :path => '../'
 
-  
-end
 
 

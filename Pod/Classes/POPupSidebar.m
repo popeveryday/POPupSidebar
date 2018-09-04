@@ -10,6 +10,7 @@
 #import <AFNetworking/AFNetworking.h>
 #import <AFNetworking/UIImageView+AFNetworking.h>
 
+
 #define profile_spacing 15.0f
 #define profile_imageSize CGSizeMake(75.0f, 75.0f)
 #define profile_titleHeight 20.0f
@@ -392,25 +393,25 @@ static POPupSidebarVC *sharedInstance = nil;
         return;
     }
     
-    
+    __weak typeof(self) weakSelf = self;
     [UIView animateWithDuration:0.35 animations:^{
-        bg.alpha = nextX == 0 ? 0.3 : 0;
+        self->bg.alpha = nextX == 0 ? 0.3 : 0;
         self.view.frame = CGRectMake(nextX, 0, [POPupSidebarVC sidebarWidth], self.view.frame.size.height);
     } completion:^(BOOL completed){
-        sidebarState = [sidebarState stringByReplacingOccurrencesOfString:@"Moving-" withString:@""];
-        if ([sidebarState isEqualToString:@"Hide"]) {
+        self->sidebarState = [self->sidebarState stringByReplacingOccurrencesOfString:@"Moving-" withString:@""];
+        if ([self->sidebarState isEqualToString:@"Hide"]) {
             
             [self removeSidebar];
             
             if ([StringLib isValid:key])
             {
                 
-                if (_popUpSidebarDelegate != nil && [_popUpSidebarDelegate respondsToSelector:@selector(popUpDidSelectedItemWithKey:currentViewController:)])
+                if (weakSelf.popUpSidebarDelegate != nil && [weakSelf.popUpSidebarDelegate respondsToSelector:@selector(popUpDidSelectedItemWithKey:currentViewController:)])
                 {
-                    [_popUpSidebarDelegate popUpDidSelectedItemWithKey:key currentViewController:_currentRootViewController];
+                    [weakSelf.popUpSidebarDelegate popUpDidSelectedItemWithKey:key currentViewController:weakSelf.currentRootViewController];
                 }
                 
-                [_sidebarViewController executeActionWithKey:key currentRootViewController:_currentRootViewController exceptLastKey: !_isAllowReloadLastAction ];
+                [weakSelf.sidebarViewController executeActionWithKey:key currentRootViewController:weakSelf.currentRootViewController exceptLastKey: !weakSelf.isAllowReloadLastAction ];
             }
         }
         

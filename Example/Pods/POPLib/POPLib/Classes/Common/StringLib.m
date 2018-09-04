@@ -10,7 +10,8 @@
 #import "NSDate+NVTimeAgo.h"
 #import <Foundation/NSNull.h>
 #import "GlobalConfig.h"
-
+#import <objc/runtime.h>
+#import <CommonCrypto/CommonDigest.h>
 
 @implementation StringLib
 
@@ -64,16 +65,36 @@
     return [[result stringByReplacingOccurrencesOfString:@"[@]&" withString:@""] stringByReplacingOccurrencesOfString:@"[@]" withString: @""];
 }
 
+// & => [AnD] ; [AnD] => [AnD2] ; = => [EqL] ; [EqL] => [EqL2] ...[EqL9]
+// & <= [AnD] ; [AnD] <= [AnD2] ; = <= [EqL] ; [EqL] <= [EqL2] ...[EqL9]
 +(NSString*)parseStringValidate:(id) value isParseString:(BOOL)isParseString{
     
-    NSString* andStr = @"[AnD]";
-    NSString* equalStr = @"[EqL]";
+    NSString* andStr = @"[AnD]", *equalStr = @"[EqL]";
+    NSString* andStr2 = @"[AnD%@]",*equalStr2 = @"[EqL%@]";
     NSString* valueStr = [NSString stringWithFormat:@"%@",value];
     
     if (isParseString) {
+        
+        
+        for (int i = 9 ; i >=2 ; i--)
+        {
+            valueStr = [valueStr stringByReplacingOccurrencesOfString:[NSString stringWithFormat:andStr2, i == 2 ? @"" : @(i-1)] withString:[NSString stringWithFormat:andStr2, @(i)]];
+            valueStr = [valueStr stringByReplacingOccurrencesOfString:[NSString stringWithFormat:equalStr2, i == 2 ? @"" : @(i-1)] withString:[NSString stringWithFormat:equalStr2, @(i)]];
+        }
+        
         return [[valueStr stringByReplacingOccurrencesOfString:@"&" withString:andStr] stringByReplacingOccurrencesOfString:@"=" withString:equalStr];
     }else{
-        return [[valueStr stringByReplacingOccurrencesOfString:andStr withString:@"&"] stringByReplacingOccurrencesOfString:equalStr withString:@"="];
+        
+        valueStr = [[valueStr stringByReplacingOccurrencesOfString:andStr withString:@"&"] stringByReplacingOccurrencesOfString:equalStr withString:@"="];
+        
+        
+        for (int i = 2 ; i < 10 ; i++)
+        {
+            valueStr = [valueStr stringByReplacingOccurrencesOfString:[NSString stringWithFormat:andStr2, @(i)] withString:[NSString stringWithFormat:andStr2, i == 2 ? @"" : @(i-1)]];
+            valueStr = [valueStr stringByReplacingOccurrencesOfString:[NSString stringWithFormat:equalStr2, @(i)] withString:[NSString stringWithFormat:equalStr2, i == 2 ? @"" : @(i-1)]];
+        }
+        
+        return valueStr;
     }
 }
 
@@ -122,10 +143,13 @@
     return [formatter stringFromDate:date];
 }
 
-+(NSString*)formatVideoDurationWithSeconds:(double) duration splitString:(NSString*)splitString{
++(NSString*)formatVideoDurationWithSeconds:(double) duration splitString:(NSString*)splitString
+{
+    BOOL isNegative = duration < 0;
+    if(duration < 0) duration = duration * -1;
     int minutes = duration/60;
     int seconds = duration - (minutes*60);
-    return [NSString stringWithFormat:@"%d%@%@%d",minutes, [StringLib isValid:splitString] ? splitString : @":" ,seconds>9?@"":@"0",seconds ];
+    return [NSString stringWithFormat:@"%@%d%@%@%d", isNegative?@"-":@"", minutes, [StringLib isValid:splitString] ? splitString : @":" ,seconds>9?@"":@"0",seconds ];
 }
 
 +(NSString*)formatTimeAgo:(NSDate*) date
@@ -155,13 +179,13 @@
 
 +(NSInteger)indexOf:(NSString*) str inString:(NSString*) sourcestr fromIndex:(NSInteger) fromIndex
 {
-    sourcestr = [sourcestr substringFromIndex:fromIndex];
+    NSString* _sourcestr = [sourcestr substringFromIndex:fromIndex];
     
-    NSRange rs = [sourcestr rangeOfString:str];
+    NSRange rs = [_sourcestr rangeOfString:str];
     if (rs.location == NSNotFound) {
         return -1;
     }
-    return rs.location;
+    return fromIndex + rs.location;
 }
 
 +(NSInteger)lastIndexOf:(NSString*)searchStr inString:(NSString*)srcString{
@@ -196,8 +220,12 @@
 }
 
 
-
 +(NSString*)subStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr{
+    return [self subStringBetween:source startStr:startStr endStr:endStr includeStartEnd:NO];
+}
+
++(NSString*)subStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd
+{
     source = [NSString stringWithFormat:@" %@", source];
     NSInteger index = [self indexOf:startStr inString:source];
     if (index == -1) return nil;
@@ -208,7 +236,73 @@
     
     if (endIndex == -1) return nil;
     
-    return [[source substringFromIndex:index] substringToIndex:endIndex];
+    NSString* rs = [[source substringFromIndex:index] substringToIndex:endIndex - index];
+    if (includeStartEnd) rs = [NSString stringWithFormat:@"%@%@%@",startStr, rs, endStr];
+    return rs;
+}
+
++(NSArray*)allSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr
+{
+    return [self allSubStringBetween:source startStr:startStr endStr:endStr includeStartEnd:NO];
+}
+
++(NSArray*)allSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd
+{
+    NSMutableArray* rs = [NSMutableArray new];
+    
+    NSString* obj, *nstr = source;
+    NSInteger start, end;
+    while (YES)
+    {
+        obj = [self subStringBetween:nstr startStr:startStr endStr:endStr includeStartEnd:includeStartEnd];
+        if (!obj) break;
+        
+        [rs addObject:obj];
+        start = [StringLib indexOf:startStr inString:nstr] + startStr.length;
+        end = [StringLib indexOf:endStr inString:nstr fromIndex:start];
+        end += endStr.length;
+        nstr = [nstr substringFromIndex:end];
+    }
+    
+    return rs;
+}
+
++(NSDictionary*)buildTreeSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr
+{
+    NSMutableDictionary* rs = [NSMutableDictionary new];
+    
+    NSString* obj, *nstr = source, *key;
+    NSInteger counter = 1;
+    while (YES)
+    {
+        obj = [self lastSubStringBetween:nstr startStr:startStr endStr:endStr includeStartEnd:YES];
+        if (!obj) break;
+        key = [NSString stringWithFormat:@"[ObJeCt%@]",@(counter)];
+        [rs setObject:obj forKey:key];
+        nstr = [nstr stringByReplacingOccurrencesOfString:obj withString:key];
+        counter++;
+    }
+    
+    [rs setObject:nstr forKey:@"content"];
+    
+    return rs;
+}
+
++(NSString*)lastSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd
+{
+    source = [NSString stringWithFormat:@" %@", source];
+    NSInteger index = [StringLib  lastIndexOf:startStr inString:source];
+    if (index == -1) return nil;
+    
+    index += startStr.length;
+    
+    NSInteger endIndex = [StringLib indexOf:endStr inString:source fromIndex:index];
+    
+    if (endIndex == -1) return nil;
+    
+    NSString* rs = [[source substringFromIndex:index] substringToIndex:endIndex - index];
+    if (includeStartEnd) rs = [NSString stringWithFormat:@"%@%@%@",startStr, rs, endStr];
+    return rs;
 }
 
 +(NSDictionary*)deparseJson:(NSString*)jsonString{
@@ -288,6 +382,69 @@
     }
     
     return num;
+}
+
++(NSString*) md5:(NSString*)str
+{
+    const char *cStr = [str UTF8String];
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( cStr, (CC_LONG)strlen(cStr), result );
+    
+    return [NSString stringWithFormat:
+            @"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+            result[0], result[1], result[2], result[3],
+            result[4], result[5], result[6], result[7],
+            result[8], result[9], result[10], result[11],
+            result[12], result[13], result[14], result[15]
+            ];
+}
+
++(NSString*) md5_2:(NSString*)str
+{
+    // Create pointer to the string as UTF8
+    const char *ptr = [str UTF8String];
+    
+    // Create byte array of unsigned chars
+    unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
+    
+    // Create 16 byte MD5 hash value, store in buffer
+    CC_MD5(ptr, (int) strlen(ptr), md5Buffer);
+    
+    // Convert MD5 value in the buffer to NSString of hex values
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02x",md5Buffer[i]];
+    
+    return output;
+}
+
++ (NSString*)sha256:(NSString*)input
+{
+    const char *cstr = [input cStringUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [NSData dataWithBytes:cstr length:input.length];
+    uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+    
+    // This is an iOS5-specific method.
+    // It takes in the data, how much data, and then output format, which in this case is an int array.
+    CC_SHA256(data.bytes, (int)data.length, digest);
+    
+    NSMutableString* output = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
+    
+    // Parse through the CC_SHA256 results (stored inside of digest[]).
+    for(int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+        [output appendFormat:@"%02x", digest[i]];
+    }
+    
+    return output;
+}
+
++(NSString*) replaceOneTimeWithContent:(NSString*)content original:(NSString*)original replacement:(NSString*)replacement
+{
+    NSRange rOriginal = [content rangeOfString:original];
+    if (NSNotFound != rOriginal.location) {
+        return [content stringByReplacingCharactersInRange:rOriginal withString:replacement];
+    }
+    return content;
 }
 
 @end

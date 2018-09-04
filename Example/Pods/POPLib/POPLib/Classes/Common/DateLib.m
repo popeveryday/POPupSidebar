@@ -37,12 +37,12 @@
     
     NSCalendar *calendar = [NSCalendar currentCalendar];
     
-    [calendar rangeOfUnit:NSDayCalendarUnit startDate:&fromDate
+    [calendar rangeOfUnit:NSCalendarUnitDay startDate:&fromDate
                  interval:NULL forDate:[fromDateTime toNSDate]];
-    [calendar rangeOfUnit:NSDayCalendarUnit startDate:&toDate
+    [calendar rangeOfUnit:NSCalendarUnitDay startDate:&toDate
                  interval:NULL forDate:[toDateTime toNSDate]];
     
-    NSDateComponents *difference = [calendar components:NSDayCalendarUnit
+    NSDateComponents *difference = [calendar components:NSCalendarUnitDay
                                                fromDate:fromDate toDate:toDate options:0];
     
     return difference;
@@ -72,17 +72,17 @@
 
 +(NSTimeInterval)toTimeStamp:(NSDate *)date
 {
-    return (long)[date timeIntervalSince1970];
+    return [self toTimeStamp:date miliSecond:NO];
 }
 
 +(NSTimeInterval)toTimeStamp:(NSDate *)date miliSecond:(BOOL)miliSecond
 {
-    return [self toTimeStamp:date] * (miliSecond?1000:1);
+    return (long)([date timeIntervalSince1970] * (miliSecond ? 1000.0f : 1.0f));
 }
 
 +(NSDate*)fromTimeStamp:(NSTimeInterval)timestamp miliSecond:(BOOL)miliSecond
 {
-    return [NSDate dateWithTimeIntervalSince1970: timestamp/(miliSecond?1000:1)];
+    return [NSDate dateWithTimeIntervalSince1970: timestamp / (miliSecond ? 1000.0f : 1.0f)];
 }
 
 @end

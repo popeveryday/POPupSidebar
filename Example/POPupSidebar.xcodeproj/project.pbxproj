@@ -60,7 +60,7 @@
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
-		685F2504E7D9BB10BFC0C77C /* POPupSidebar.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = POPupSidebar.podspec; path = ../POPupSidebar.podspec; sourceTree = "<group>"; };
+		685F2504E7D9BB10BFC0C77C /* POPupSidebar.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = POPupSidebar.podspec; path = ../POPupSidebar.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		69A8E226F4C49224B65DD8D5 /* Pods-POPupSidebar_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-POPupSidebar_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-POPupSidebar_Example/Pods-POPupSidebar_Example.release.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		A4C16CACAECC07E10E0519BF /* Pods-POPupSidebar_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-POPupSidebar_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-POPupSidebar_Tests/Pods-POPupSidebar_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -210,7 +210,6 @@
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
 				5FAFA833B46F6FF27999F334 /* [CP] Embed Pods Frameworks */,
-				6B741BDA537F032B0C7F2E5F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -229,8 +228,6 @@
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
-				53351E8A938F8147456C02B1 /* [CP] Embed Pods Frameworks */,
-				2152C4B1DB6AA05890719048 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -301,47 +298,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2152C4B1DB6AA05890719048 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Tests/Pods-POPupSidebar_Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		53351E8A938F8147456C02B1 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Tests/Pods-POPupSidebar_Tests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
-				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/POPLib/POPLib.framework",
-				"${BUILT_PRODUCTS_DIR}/POPupSidebar/POPupSidebar.framework",
-				"${BUILT_PRODUCTS_DIR}/PureLayout/PureLayout.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AFNetworking.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/POPLib.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/POPupSidebar.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PureLayout.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Tests/Pods-POPupSidebar_Tests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		5FAFA833B46F6FF27999F334 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -350,6 +306,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Example/Pods-POPupSidebar_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
+				"${BUILT_PRODUCTS_DIR}/FontAwesomeKit/FontAwesomeKit.framework",
 				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
 				"${BUILT_PRODUCTS_DIR}/POPLib/POPLib.framework",
 				"${BUILT_PRODUCTS_DIR}/POPupSidebar/POPupSidebar.framework",
@@ -358,6 +315,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AFNetworking.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FontAwesomeKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/POPLib.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/POPupSidebar.framework",
@@ -366,21 +324,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Example/Pods-POPupSidebar_Example-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6B741BDA537F032B0C7F2E5F /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-POPupSidebar_Example/Pods-POPupSidebar_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EAA1ADE1A8AE5A78C676D1B4 /* [CP] Check Pods Manifest.lock */ = {

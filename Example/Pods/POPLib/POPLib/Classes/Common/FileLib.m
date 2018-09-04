@@ -122,10 +122,13 @@
 }
 
 
-+(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath isIncludeSubFolder:(BOOL)isIncludeSubFolder filterListType:(enum GetFileListType) filterListType
++(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath isIncludeSubFolder:(BOOL)isIncludeSubFolder filterListType:(enum GetFileListType) filterListType{
+    return [self getFileList:path searchString:searchString isFullPath:isFullPath isIncludeSubFolder:isIncludeSubFolder filterListType:filterListType limit:0];
+}
+
++(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath isIncludeSubFolder:(BOOL)isIncludeSubFolder filterListType:(enum GetFileListType) filterListType limit:(NSInteger) limit
 {
-    
-    NSMutableArray* result;
+    NSMutableArray* result = [NSMutableArray new];
     NSError* error = nil;
     NSArray* dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
     
@@ -133,10 +136,9 @@
         NSLog(@"[FileLib.GetFileList] error: %@", [error localizedDescription]);
     }
     
-    if (!isIncludeSubFolder && !isFullPath && filterListType == GetFileListTypeAll) {
-        result = [NSMutableArray arrayWithArray: dirContents];
+    if (!isIncludeSubFolder && filterListType == GetFileListTypeAll) {
+        [result addObjectsFromArray:dirContents];
     }else{
-        NSMutableArray* acceptFiles = [NSMutableArray new];
         BOOL isDirectory;
         NSString* filePath;
         for (NSString* file in dirContents) {
@@ -151,16 +153,16 @@
                 || (filterListType == GetFileListTypeImageVideoOnly && IsSupportFileType(filePath))
                 )
             {
-                [acceptFiles addObject: isFullPath ? filePath : file];
+                [result addObject: file];
             }
+            
+            if(limit > 0 && limit - result.count <= 0) break;
             
             if (isIncludeSubFolder && isDirectory)
             {
-                [acceptFiles addObjectsFromArray:[self getFileList:filePath searchString:searchString isFullPath:isFullPath isIncludeSubFolder:isIncludeSubFolder filterListType:filterListType]];
+                [result addObjectsFromArray:[self getFileList:filePath searchString:searchString isFullPath:isFullPath isIncludeSubFolder:isIncludeSubFolder filterListType:filterListType limit: limit > 0 ? limit-result.count : 0 ]];
             }
         }
-        
-        result = [NSMutableArray arrayWithArray:acceptFiles];
     }
     
     //filter result
@@ -169,6 +171,14 @@
         //SELF beginswith[c] 'a' SELF endswith[c] 'a' SELF contains[c] 'a'
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF like[c] %@", searchString];
         result = [NSMutableArray arrayWithArray: [result filteredArrayUsingPredicate:predicate]];
+    }
+    
+    if (isFullPath)
+    {
+        for (int i = 0; i < result.count; i++) {
+            if([FileLib checkPathExisted:result[i]]) continue;
+            result[i] = [path stringByAppendingPathComponent:result[i]];
+        }
     }
     
     return result;
@@ -358,19 +368,19 @@
     NSFileManager* filemgr = [NSFileManager defaultManager];
     
     if ([filemgr fileExistsAtPath:fromPath] == NO) {
-        return [[ReturnSet alloc] initWithMessage:NO message:@"Source folder is not existed."];
+        return [ReturnSet initWithMessage:NO message:@"Source folder is not existed."];
     }
     
     if ([filemgr fileExistsAtPath:toPath] == YES) {
         if (mergeFolderData == NO) {
-            return [[ReturnSet alloc] initWithMessage:NO message:@"Destination folder is existed."];
+            return [ReturnSet initWithMessage:NO message:@"Destination folder is existed."];
         }
     }else{//create folder if is not existed
         [self createDirectory:toPath];
     }
     
     //move file to new folder
-    NSMutableArray* files = [self getFileList:fromPath fileType:nil];
+    NSMutableArray* files = (NSMutableArray*)[self getFileList:fromPath fileType:nil];
     for (NSString* file in files) {
         oldFile = [fromPath stringByAppendingPathComponent:file];
         newFile = [toPath stringByAppendingPathComponent:file];
@@ -382,7 +392,7 @@
         [self removeFileOrDirectory:fromPath];
     }
     
-    return [[ReturnSet alloc] initWithResult:YES];
+    return [ReturnSet initWithResult:YES];
 }
 
 
@@ -460,7 +470,7 @@
 +(double)getFolderSizeWithPath:(NSString*) path includeSubFolder:(BOOL)includeSubFolder{
     double totalSize = 0;
     
-    NSMutableArray* files = [self getFileList:path fileType:nil isFullPath:YES];
+    NSMutableArray* files = (NSMutableArray*)[self getFileList:path fileType:nil isFullPath:YES];
     
     for (NSString* file in files) {
         if ([self checkPathIsDirectory:file] && includeSubFolder) {
@@ -608,6 +618,66 @@
     }
 }
 
++ (NSString *) base64StringFromFileAtPath: (NSString*) filePath
+{
+    NSData * dataFromFile = [NSData dataWithContentsOfFile:filePath];
+    return [dataFromFile base64EncodedStringWithOptions:0];
+}
+
+
++ (NSData*) dataFrom64String : (NSString*) stringEncodedWithBase64
+{
+    NSData *dataFromBase64 = [[NSData alloc] initWithBase64EncodedString:stringEncodedWithBase64 options:0];
+    return dataFromBase64;
+}
+
+//doc[a/b/c] or doc:a/b/c => [FileLib getDocumentPath:@"a/b/c"]
+//doc or lib or tem/temp => document library temp
++(NSString*) getFullPathFromParam:(NSString*)param defaultPath:(NSString*)defaultPath
+{
+    NSString* param2 = [StringLib trim:[param lowercaseString]];
+    
+    if ([param2 isEqualToString:@"doc[]"] || [param2 isEqualToString:@"doc:"]) {
+        return [FileLib getDocumentPath];
+    }
+    
+    if ([param2 isEqualToString:@"lib[]"] || [param2 isEqualToString:@"lib:"]) {
+        return [FileLib getLibraryPath];
+    }
+    
+    if ([param2 isEqualToString:@"tem[]"] || [param2 isEqualToString:@"tem:"]) {
+        return [FileLib getTempPath];
+    }
+    
+    if ([param2 isEqualToString:@"temp[]"] || [param2 isEqualToString:@"temp:"]) {
+        return [FileLib getTempPath];
+    }
+    
+    NSString* value;
+    if ([param containsString:@"["] && [param containsString:@"]"]) {
+        value = [StringLib subStringBetween:param startStr:@"[" endStr:@"]"];
+        if (value){
+            if ([param2 hasPrefix:@"doc["]) return [FileLib getDocumentPath:value];
+            if ([param2 hasPrefix:@"lib["]) return [FileLib getLibraryPath:value];
+            if ([param2 hasPrefix:@"tem["]) return [FileLib getTempPath:value];
+            if ([param2 hasPrefix:@"temp["]) return [FileLib getTempPath:value];
+        }
+    }
+    
+    if ([param containsString:@":"])
+    {
+        value = [[param componentsSeparatedByString:@":"] objectAtIndex:1];
+        value = [StringLib trim:value];
+        if([param2 hasPrefix:@"doc:"]) return [FileLib getDocumentPath:value];
+        if([param2 hasPrefix:@"lib:"]) return [FileLib getLibraryPath:value];
+        if([param2 hasPrefix:@"tem:"]) return [FileLib getTempPath:value];
+        if([param2 hasPrefix:@"temp:"]) return [FileLib getTempPath:value];
+    }
+    
+    if([StringLib isValid:defaultPath]) return [defaultPath stringByAppendingPathComponent:param];
+    
+    return param;
+}
 
 @end
 

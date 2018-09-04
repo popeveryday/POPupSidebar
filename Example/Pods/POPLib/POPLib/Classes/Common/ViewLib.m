@@ -7,6 +7,10 @@
 //
 
 #import "ViewLib.h"
+#import "RTLabel.h"
+#import "PageView.h"
+#import "CollectionView.h"
+#import "QUIBuilder.h"
 
 @implementation ViewLib
 
@@ -96,9 +100,9 @@
         loading.animationType = MBProgressHUDAnimationFade;
     }
     
-    loading.labelText = title == nil ? LocalizedText(@"Loading",nil) : title;
-    loading.detailsLabelText = detailText == nil ? LocalizedText(@"please wait",nil) : detailText;
-    [loading show:YES];
+    loading.label.text = title == nil ? LocalizedText(@"Loading",nil) : title;
+    loading.detailsLabel.text = detailText == nil ? LocalizedText(@"please wait",nil) : detailText;
+    [loading showAnimated:YES];
     
     return loading;
 }
@@ -114,9 +118,9 @@
     if ([uiview viewWithTag:indicatorTag]) {
         loading = (MBProgressHUD*)[uiview viewWithTag:indicatorTag];
         if (delay > 0) {
-            [loading hide:YES afterDelay:delay];
+            [loading hideAnimated:YES afterDelay:delay];
         }else{
-            [loading hide:YES];
+            [loading hideAnimated:YES];
         }
         
     }
@@ -141,15 +145,15 @@
         loading.delegate = delegate;
     }
     
-    loading.labelText = title == nil ? LocalizedText(@"Loading",nil) : title;
-    loading.detailsLabelText = detailText == nil ? LocalizedText(@"please wait",nil) : detailText;
+    loading.label.text = title == nil ? LocalizedText(@"Loading",nil) : title;
+    loading.detailsLabel.text = detailText == nil ? LocalizedText(@"please wait",nil) : detailText;
     loading.square = YES;
     
     [loading showWhileExecuting:method onTarget:target withObject:object animated:YES];
 }
 
 +(void)hideLoadingWithHUD:(MBProgressHUD*) loading{
-    [loading hide:YES];
+    [loading hideAnimated:YES];
 }
 
 +(MBProgressHUD*)showLoadingWithTitle:(NSString*)title detailText:(NSString*)detailText uiview:(UIView*)uiview container:(id<MBProgressHUDDelegate>)container
@@ -167,9 +171,9 @@
         loading.square = YES;
     }
     loading.square = YES;
-    loading.labelText = title == nil ? LocalizedText(@"Loading",nil) : title;
-    loading.detailsLabelText = detailText == nil ? LocalizedText( @"please wait" ,nil) : detailText;
-    [loading show:YES];
+    loading.label.text = title == nil ? LocalizedText(@"Loading",nil) : title;
+    loading.detailsLabel.text = detailText == nil ? LocalizedText( @"please wait" ,nil) : detailText;
+    [loading showAnimated:YES];
     
     return loading;
 }
@@ -185,7 +189,7 @@
     
     if ([container viewWithTag:indicatorTag]) {
         loading = (MBProgressHUD*)[container viewWithTag:indicatorTag];
-        [loading hide:YES];
+        [loading hideAnimated:YES];
     }
 }
 
@@ -212,7 +216,12 @@
         if (heightFraction < 0.0) heightFraction = 0.0;
         else if (heightFraction > 1.0) heightFraction = 1.0;
         
-        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+        
+        UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
+#ifndef POPLIB_APP_EXTENSIONS
+        orientation = [[UIApplication sharedApplication] statusBarOrientation];
+#endif
+        
         CGFloat subviewHeight = (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown) ? PORTRAIT_KEYBOARD_HEIGHT : LANDSCAPE_KEYBOARD_HEIGHT;
         
         //neu co inputview (picker, datepicker) subview height ko doi so voi portrait height
@@ -245,7 +254,8 @@
     [UIView commitAnimations];
 }
 
-+(void)createSnowInView:(UIView*)view{
++(CAEmitterLayer*) createSnowInView:(UIView*)view withImage:(UIImage*)snowImage
+{
     //snow builder
     CAEmitterLayer *emitterLayer = [CAEmitterLayer layer]; // 1
     emitterLayer.emitterPosition = CGPointMake(view.bounds.size.width / 2, view.bounds.origin.y - 300); // 2
@@ -263,9 +273,11 @@
     emitterCell.velocityRange = 300; // 13
     emitterCell.yAcceleration = 1; // 14
     
-    emitterCell.contents = (id)[[UIImage imageNamed:@"CommonLib.bundle/snow"] CGImage]; // 15
+    emitterCell.contents = (id)[snowImage CGImage]; // 15
     emitterLayer.emitterCells = [NSArray arrayWithObject:emitterCell]; // 16
     [view.layer addSublayer:emitterLayer]; // 17
+    
+    return emitterLayer;
 }
 
 +(UIDocumentInteractionController*)showOpenInWithFile:(NSString*)filePath container:(UIView*)container delegate:(id<UIDocumentInteractionControllerDelegate>)delegate
@@ -322,6 +334,19 @@
         controller.edgesForExtendedLayout = isFixed ? UIRectEdgeNone : UIRectEdgeAll;
 }
 
++(void)fixNavigationBar:(UINavigationBar*)navbar translucentColor:(UIColor*)barColor
+{
+    CGRect frame = navbar.frame;
+    frame.origin.y = -20.0f;
+    frame.size.height += 20.0f;
+    UIView *colorView = [[UIView alloc] initWithFrame:frame];
+    colorView.opaque = NO;
+    colorView.backgroundColor = barColor;
+    navbar.barTintColor = barColor;
+    [navbar.layer insertSublayer:colorView.layer atIndex:1];
+}
+
+
 +(UIEdgeInsets)collectionEdgeInsectFromHashString:(NSString*) hashString
 {
     //structure hashString device = top, left, bottom, right
@@ -355,12 +380,24 @@
     [self setNavigationBarColor:color tintColor:[UIColor whiteColor] foregroundColor:[UIColor whiteColor] viewController:controller];
 }
 
-+(void)setNavigationBarColor:(UIColor*)color tintColor:(UIColor*)tintColor foregroundColor:(UIColor*)foregroundColor viewController:(UIViewController*)controller{
-    [controller.navigationController.navigationBar setBarTintColor:color];
-    [controller.navigationController.navigationBar setTintColor:tintColor];
-    [controller.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : foregroundColor}];
++(void)setNavigationBarColor:(UIColor*)color tintColor:(UIColor*)tintColor foregroundColor:(UIColor*)foregroundColor viewController:(UIViewController*)controller
+{
+    UINavigationBar* navbar;
+    if ([controller isKindOfClass:[UINavigationController class]]) {
+        navbar = ((UINavigationController*)controller).navigationBar;
+    }else{
+        navbar = controller.navigationController.navigationBar;
+    }
     
+    if (navbar) {
+        [navbar setBarTintColor:color];
+        [navbar setTintColor:tintColor];
+        [navbar setTitleTextAttributes:@{NSForegroundColorAttributeName : foregroundColor}];
+    }
+    
+#ifndef POPLIB_APP_EXTENSIONS
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+#endif
     
     //View controller-based status bar appearance -> NO (INFO.PLIST)
 }
@@ -378,7 +415,7 @@
     return [vc isEqual: controller];
 }
 
-+(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)())completeBlock
++(void)presentViewWithStorboardName:(NSString*)storyboardName storyboardViewID:(NSString*)viewID currentViewController:(UIViewController*)viewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)(void))completeBlock
 {
     UINavigationController* nav = (UINavigationController*) [viewController parentViewController];
     UIViewController* currentViewController = [nav.viewControllers firstObject];
@@ -389,7 +426,7 @@
     [self presentViewController:nextViewController fromViewController:currentViewController displayStyle:displayStyle prepareBlock:prepareBlock completeBlock:completeBlock];
 }
 
-+(void)presentViewController:(UIViewController*)nextViewController fromViewController:(UIViewController*)currentViewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)())completeBlock
++(void)presentViewController:(UIViewController*)nextViewController fromViewController:(UIViewController*)currentViewController displayStyle:(enum DisplayStyle) displayStyle prepareBlock:(void(^)(UIViewController* destinationVC))prepareBlock completeBlock:(void(^)(void))completeBlock
 {
     if (prepareBlock != nil) {
         prepareBlock(nextViewController);
@@ -397,11 +434,9 @@
     
     UIView* snapshot = currentViewController.navigationController != nil ? [currentViewController.navigationController.view snapshotViewAfterScreenUpdates:YES] : [currentViewController.view snapshotViewAfterScreenUpdates:YES];
     
-    UINavigationController* nav;
-    
+    UINavigationController* nav = (UINavigationController*) [currentViewController parentViewController];
     switch (displayStyle) {
         case DisplayStyleReplaceNavigationRootVC:
-            nav = (UINavigationController*) [currentViewController parentViewController];
             [nav setViewControllers:@[ nextViewController ]];
             [currentViewController.view removeFromSuperview];
             currentViewController = nil;
@@ -421,7 +456,11 @@
             break;
         case DisplayStyleReplaceWindowRootVC:
             [nextViewController.view addSubview:snapshot];
+            
+#ifndef POPLIB_APP_EXTENSIONS
             [[UIApplication sharedApplication].keyWindow setRootViewController:nextViewController];
+#endif
+            
             currentViewController = nil;
             [UIView animateWithDuration:.25 delay:0.25 options:UIViewAnimationOptionCurveLinear animations:^{
                 snapshot.alpha = 0;
@@ -485,16 +524,26 @@
 }
 
 
-
 +(id) initAutoLayoutWithType:(enum ALControlType)type viewContainer:(UIView*)viewContainer superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge
+{
+    return [self initAutoLayoutWithType:type viewContainer:viewContainer superEdge:superEdge otherEdge:otherEdge viewName:nil];
+}
+
++(id) initAutoLayoutWithType:(enum ALControlType)type viewContainer:(UIView*)viewContainer superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge viewName:(NSString*)viewName
 {
     id control;
     
     if (type == ALControlTypeLabel) {
         control = [UILabel newAutoLayoutView];
-        [control setLineBreakMode:NSLineBreakByTruncatingTail];
-        [control setNumberOfLines:0];
-        [control setTextAlignment:NSTextAlignmentLeft];
+        [(UILabel*)control setLineBreakMode:NSLineBreakByTruncatingTail];
+        [(UILabel*)control setNumberOfLines:0];
+        [(UILabel*)control setTextAlignment:NSTextAlignmentLeft];
+    }
+    else if (type == ALControlTypeColorLabel)
+    {
+        control = [RTLabel newAutoLayoutView];
+        [(RTLabel*)control setLineBreakMode:RTTextLineBreakModeWordWrapping];
+        [(RTLabel*)control setTextAlignment:RTTextAlignmentLeft];
     }
     else if (type == ALControlTypeImage)
     {
@@ -528,9 +577,42 @@
         control = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]];
         [control configureForAutoLayout];
     }
+    else if (type == ALControlTypeScrollView)
+    {
+        control = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [control configureForAutoLayout];
+    }
+    else if (type == ALControlTypePageView)
+    {
+        control = [[PageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [control configureForAutoLayout];
+    }
+    else if (type == ALControlTypeCollectionView)
+    {
+        control = [[CollectionView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [control configureForAutoLayout];
+    }
+    else if (type == ALControlTypeSlider)
+    {
+        control = [[UISlider alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [control configureForAutoLayout];
+    }
+    else if (type == ALControlTypeSwitch)
+    {
+        control = [[UISwitch alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [control configureForAutoLayout];
+    }
     
     
-    [viewContainer addSubview:control];
+    
+    //fix bug UIVisualEffectView add subview
+    if (GC_Device_iOsVersion >= 11 && [viewContainer isKindOfClass:[UIVisualEffectView class]]) {
+        [((UIVisualEffectView*)viewContainer).contentView addSubview:control];
+    }else{
+        [viewContainer addSubview:control];
+    }
+    
+    if(viewName) ((UIView*)control).viewName = viewName;
     
     [self updateLayoutForView:control superEdge:superEdge otherEdge:otherEdge];
     
@@ -539,6 +621,7 @@
 
 +(void) updateLayoutForView:(ALView*)view superEdge:(NSString*)superEdge otherEdge:(NSDictionary*)otherEdge
 {
+    
     NSMutableArray* addedEdge = [[NSMutableArray alloc] init];
     if (otherEdge != nil) {
         for (NSString* edge in otherEdge.allKeys) {
@@ -565,26 +648,35 @@
 +(NSString*) pinEdgeWithView:(UIView*)view edgeStr:(NSString*)edgeStr otherView:(UIView*)otherView
 {
     NSString* direction = [edgeStr substringToIndex:1];
+    NSLayoutConstraint* lct = nil;
+    NSArray<NSLayoutConstraint*>* lctArr = nil;
     
     if ([direction isEqualToString:@"C"]) {
-        [view autoCenterInSuperview];
+        lctArr = [view autoCenterInSuperview];
+        for (NSLayoutConstraint* _lct in lctArr)
+        {
+            _lct.identifier = [NSString stringWithFormat:@"%@%@|%@", direction, @([lctArr indexOfObject:_lct]), [view valueForKey:@"viewName"] ];
+        };
+        
         return direction;
     }
     
     if ([direction isEqualToString:@"H"]) {
-        [view autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
+        lct = [view autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
+        lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
         return direction;
     }
     
     if ([direction isEqualToString:@"V"]) {
-        [view autoAlignAxisToSuperviewAxis:ALAxisVertical];
+        lct = [view autoAlignAxisToSuperviewAxis:ALAxisVertical];
+        lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
         return direction;
     }
     
     enum NSLayoutRelation relation = [StringLib contains:@">" inString:edgeStr] ? NSLayoutRelationGreaterThanOrEqual : [StringLib contains:@"<" inString:edgeStr] ? NSLayoutRelationLessThanOrEqual : NSLayoutRelationEqual;
     NSString* insetStr = [[[edgeStr substringFromIndex:1] stringByReplacingOccurrencesOfString:@">" withString:@""] stringByReplacingOccurrencesOfString:@"<" withString:@""];
     
-    //Width: W100, Height: E100, Size: S100#100
+    //Width: W100, Height: E100, Size: S100#100 or S100
     if ( [StringLib contains:direction inString:@"WES"] ) {
         if(![StringLib isValid:insetStr]) return direction;
         
@@ -592,18 +684,24 @@
         {
             NSArray* sizeParts = [insetStr componentsSeparatedByString:@"#"];
             CGFloat width = [[sizeParts firstObject] floatValue];
-            CGFloat height = [[sizeParts objectAtIndex:1] floatValue];
-            [view autoSetDimensionsToSize:CGSizeMake(width, height)];
+            CGFloat height = sizeParts.count >= 2 ? [[sizeParts objectAtIndex:1] floatValue] : width;
+            lctArr = [view autoSetDimensionsToSize:CGSizeMake(width, height)];
+            for (NSLayoutConstraint* _lct in lctArr)
+            {
+                _lct.identifier = [NSString stringWithFormat:@"%@%@|%@", direction, @([lctArr indexOfObject:_lct]), [view valueForKey:@"viewName"] ];
+            };
         }
         else if([direction isEqualToString:@"W"])
         {
             CGFloat width = [insetStr floatValue];
-            [view autoSetDimension:ALDimensionWidth toSize:width relation:relation];
+            lct = [view autoSetDimension:ALDimensionWidth toSize:width relation:relation];
+            lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
         }
         else
         {
             CGFloat height = [insetStr floatValue];
-            [view autoSetDimension:ALDimensionHeight toSize:height relation:relation];
+            lct = [view autoSetDimension:ALDimensionHeight toSize:height relation:relation];
+            lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
         }
         
         return direction;
@@ -617,10 +715,12 @@
     if (otherView == nil) {
         if(edge == ALEdgeLeft) edge = ALEdgeLeading;
         else if(edge == ALEdgeRight) edge = ALEdgeTrailing;
-        [view autoPinEdgeToSuperviewEdge:edge withInset:inset relation:relation];
+        lct = [view autoPinEdgeToSuperviewEdge:edge withInset:inset relation:relation];
+        lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
     }else{
         enum ALEdge otheredge = [[@"02143" substringWithRange: NSMakeRange(edge, 1)] integerValue];
-        [view autoPinEdge:edge toEdge:otheredge ofView:otherView withOffset:inset relation:relation];
+        lct = [view autoPinEdge:edge toEdge:otheredge ofView:otherView withOffset:inset relation:relation];
+        lct.identifier = [NSString stringWithFormat:@"%@|%@",direction, [view valueForKey:@"viewName"]];
     }
     
     return direction;
@@ -641,4 +741,124 @@
     return [customPaddingStr floatValue];
 }
 
++(CAShapeLayer*) drawCircleProgressWithView:(UIView*)view progress:(CGFloat)progress size:(CGSize)size strokeColor:(UIColor*)strokeColor fillColor:(UIColor*)fillColor lineWidth:(CGFloat)lineWidth
+{
+    CAShapeLayer *progressLayer = [self drawCircleProgress:progress size:size strokeColor:strokeColor fillColor:fillColor lineWidth:lineWidth];
+    [view.layer addSublayer:progressLayer];
+    return progressLayer;
+}
+
++(CAShapeLayer*) drawCircleProgress:(CGFloat)progress size:(CGSize)size strokeColor:(UIColor*)strokeColor fillColor:(UIColor*)fillColor lineWidth:(CGFloat)lineWidth
+{
+    CGFloat startAngle = - ((float)M_PI / 2); // 90 degrees
+    CGFloat endAngle = (2 * (float)M_PI) + startAngle;
+    
+    UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+    [bezierPath addArcWithCenter:CGPointMake(size.width/2,
+                                             size.width/2)
+                          radius:size.width/2
+                      startAngle:startAngle
+                        endAngle:endAngle
+                       clockwise:YES];
+    
+    CAShapeLayer *progressLayer = [[CAShapeLayer alloc] init];
+    [progressLayer setPath:bezierPath.CGPath];
+    [progressLayer setStrokeColor:strokeColor?strokeColor.CGColor:[UIColor grayColor].CGColor];
+    [progressLayer setFillColor:fillColor?fillColor.CGColor:[UIColor clearColor].CGColor];
+    [progressLayer setLineWidth:lineWidth<=0?5.0:lineWidth];
+    [progressLayer setStrokeEnd:progress];
+    
+    return progressLayer;
+}
+
++ (void)alertWithTitle:(NSString*) title message:(NSString*) message fromViewController:(UIViewController*)fromViewController callback:(AlertViewCompletionBlock)callback cancelButtonTitle:(NSString*) cancelButtonTitle otherButtonTitles:(NSString*) otherButtonTitles,...
+{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    
+    void (^buttonHandler)(UIAlertAction *action) = ^void(UIAlertAction *action) {
+        if(callback) callback(action.title, title);
+    };
+    
+    if (otherButtonTitles != nil)
+    {
+        [alertController addAction:[UIAlertAction actionWithTitle:otherButtonTitles style:UIAlertActionStyleDefault handler:buttonHandler]];
+        
+        va_list args;
+        va_start(args, otherButtonTitles);
+        NSString* name;
+        while ((name = va_arg(args, NSString*))) {
+            if ([StringLib isValid:name]) {
+                [alertController addAction:[UIAlertAction actionWithTitle:name style:UIAlertActionStyleDefault handler:buttonHandler]];
+            }
+        }
+        va_end(args);
+    }
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:buttonHandler]];
+    
+#ifndef POPLIB_APP_EXTENSIONS
+    if(!fromViewController) fromViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+#endif
+    
+    if(fromViewController) [fromViewController presentViewController:alertController animated:YES completion:nil];
+}
+
++(BOOL)alertNetworkConnectionStatusWithTitle:(NSString*) title message:(NSString*)message fromViewController:(UIViewController*)vc
+{
+    if (![NetLib isNetworkConnectionReady]) {
+        [self alertWithTitle:(!title ? LocalizedText(@"Connection error",nil) : title) message:(!message ? LocalizedText(@"Unable to connect with the server.\nCheck your internet connection and try again.",nil) : message) fromViewController:vc callback:nil cancelButtonTitle:LocalizedText(@"OK",nil) otherButtonTitles:nil];
+        return NO;
+    }
+    return YES;
+}
+
++(BOOL)alertNetworkConnectionStatusFromViewController:(UIViewController*)vc{
+    return [self alertNetworkConnectionStatusWithTitle:nil message:nil fromViewController:vc];
+}
+
++(NSArray*)alertUpgrageFeaturesWithContainer:(id)container isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback
+{
+    [self alertWithTitle:LocalizedText( @"Upgrage Required" ,nil) message:LocalizedText( @"To unlock this feature you need to upgrade to pro version. Would you like to upgrade now?" ,nil) fromViewController:vc callback:callback cancelButtonTitle:LocalizedText( @"Later" ,nil) otherButtonTitles:LocalizedText( @"Yes, upgrade now" ,nil), isIncludeRestoreButton ? LocalizedText( @"Restore purchases" ,nil) : nil, nil];
+    
+    return @[LocalizedText( @"Yes, upgrade now" ,nil), LocalizedText( @"Restore purchases" ,nil)];
+}
+
++(NSArray*)alertUpgrageFeaturesUnlimitWithContainer:(id)container limitMessage:(NSString*)limitMessage isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback
+{
+    NSString* message = LocalizedText(@"To use unlimited features you need to upgrade to pro version. Would you like to upgrade now?",nil);
+    if ( [StringLib isValid:limitMessage] ) {
+        message = [NSString stringWithFormat:@"%@\n%@",limitMessage, message];
+    }
+    
+    [self alertWithTitle:LocalizedText(@"Upgrage Required",nil) message:message fromViewController:vc callback:callback cancelButtonTitle:LocalizedText(@"Later",nil) otherButtonTitles:LocalizedText(@"Yes, upgrade now",nil), isIncludeRestoreButton ? LocalizedText(@"Restore purchases",nil) : nil, nil];
+    
+    return @[LocalizedText(@"Yes, upgrade now",nil), LocalizedText(@"Restore purchases",nil)];
+}
+
++(NSArray*)alertUpgrageProVersionWithContainer:(id)container featuresMessage:(NSString*)featuresMessage isIncludeRestoreButton:(BOOL)isIncludeRestoreButton fromViewController:(UIViewController*)vc callback:(AlertViewCompletionBlock)callback
+{
+    NSString* message = LocalizedText(@"Purchase to unlock following features?",nil);
+    
+    if ( [StringLib isValid:featuresMessage] ) {
+        message = [NSString stringWithFormat:@"%@\n%@", message, featuresMessage];
+    }else{
+        message = LocalizedText(@"Purchase to unlock full features?",nil);
+    }
+    
+    [self alertWithTitle:LocalizedText(@"Upgrage to Pro Version",nil) message:message fromViewController:vc callback:callback cancelButtonTitle:LocalizedText(@"Later",nil) otherButtonTitles:LocalizedText(@"Yes, upgrade now",nil), isIncludeRestoreButton ? LocalizedText(@"Restore purchases",nil) : nil, nil];
+    
+    return @[LocalizedText(@"Yes, upgrade now",nil), LocalizedText(@"Restore purchases",nil)];
+}
+
++ (void)alert:(NSString*) message
+{
+    [self alertWithTitle:nil message:message];
+}
+
++ (void)alertWithTitle:(NSString*)title message:(NSString*) message
+{
+    [self alertWithTitle:(title?title:LocalizedText(@"Message", nil)) message:message fromViewController:nil callback:nil cancelButtonTitle:LocalizedText(@"OK", nil) otherButtonTitles:nil];
+}
+
 @end
+

@@ -23,8 +23,29 @@
 +(ReturnSet*)uploadFileWithPath:(NSString *)filePath toUrl:(NSString *)url uploadTagName:(NSString *)uploadTagName requestData:(Hashtable *)requestData;
 +(ReturnSet*)uploadFileToUrl:(NSString *)url withTagNameFilePaths:(Hashtable*)files requestData:(Hashtable *)requestData;
 +(BOOL)isInternetAvailable;
++(BOOL)isNetworkConnectionReady;
++(BOOL)isReachableURL:(NSString*)url;
 +(NSString*)uRLEncoding:(NSString *)val;
 +(ReturnSet*)readTextFromUrl:(NSString*) url;
 +(ReturnSet*)getFileNameSizeFromURL:(NSString*)url;
 +(void)emailWithAttachments:(NSMutableArray*) attachments fromViewController:(UIViewController*)fromVC delegate:(id<MFMailComposeViewControllerDelegate>) delegate;
+@end
+
+
+
+@interface NetworkChecker : NSObject
+@property (nonatomic, readonly) BOOL isPingSuccess;
+@property (nonatomic, readonly) BOOL isInitSuccess;
+@property (nonatomic) BOOL isAutoRetryPing;
+@property (nonatomic) CGFloat pingDelay;
+
+
++ (instancetype)instance;
+-(instancetype) initDefaultAuto;
+-(instancetype) initWithHostName:(NSString*)hostName;
+-(void)startPinger;
+-(void)setNetworkStatusChangedBlock:(void (^)(BOOL isOnline))networkStatusChangedBlock;
+-(void)setNetworkInitFail:(void (^)(NSError *error))networkInitFail;
+-(void)sendPing;
+
 @end

@@ -32,106 +32,115 @@ enum SortFileListType{
 
 @interface FileLib : NSObject
 
-+(NSURL*)getDocumentURL;
++(NSURL*) getDocumentURL;
 
-+(NSURL*)getDocumentURL:(NSString*) subFolder;
++(NSURL*) getDocumentURL:(NSString*) subFolder;
 
-+(NSURL*)getDocumentURL:(NSString*) subFolder isDirectory:(BOOL)isDirectory;
++(NSURL*) getDocumentURL:(NSString*) subFolder isDirectory:(BOOL) isDirectory;
 
-+(NSString*)getDocumentPath;
++(NSString*) getDocumentPath;
 
-+(NSString*)getDocumentPath: (NSString*) subFolder;
++(NSString*) getDocumentPath: (NSString*) subFolder;
 
-+(NSString*)getDocumentPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
++(NSString*) getDocumentPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
 
-+(NSURL*)getLibraryURL;
++(NSURL*) getLibraryURL;
 
-+(NSURL*)getLibraryURL:(NSString*) subFolder;
++(NSURL*) getLibraryURL:(NSString*) subFolder;
 
-+(NSURL*)getLibraryURL:(NSString*) subFolder isDirectory:(BOOL)isDirectory;
++(NSURL*) getLibraryURL:(NSString*) subFolder isDirectory:(BOOL) isDirectory;
 
-+(NSString*)getLibraryPath;
++(NSString*) getLibraryPath;
 
-+(NSString*)getLibraryPath: (NSString*) subFolder;
++(NSString*) getLibraryPath: (NSString*) subFolder;
 
-+(NSString*)getLibraryPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
++(NSString*) getLibraryPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
 
-+(NSString*)getTempPath;
++(NSString*) getTempPath;
 
-+(NSString*)getTempPath: (NSString*) subFolder;
++(NSString*) getTempPath: (NSString*) subFolder;
 
-+(NSString*)getTempPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
++(NSString*) getTempPath: (NSString*) subFolder autoCreateDir:(BOOL) autoCreateDir;
 
-+(NSString*)getResourcePath;
++(NSString*) getResourcePath;
 
-+(NSString*)getResourcePath: (NSString*) subFolder;
++(NSString*) getResourcePath: (NSString*) subFolder;
 
-+(NSURL*)getEmbedResourceURLWithFilename:(NSString*) filename;
++(NSURL*) getEmbedResourceURLWithFilename:(NSString*) filename;
 
-+(NSString*)getEmbedResourcePathWithFilename:(NSString*) filename;
++(NSString*) getEmbedResourcePathWithFilename:(NSString*) filename;
 
-+(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath isIncludeSubFolder:(BOOL)isIncludeSubFolder filterListType:(enum GetFileListType) filterListType;
++(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath isIncludeSubFolder:(BOOL)isIncludeSubFolder filterListType:(enum GetFileListType) filterListType limit:(NSInteger) limit;
 
-+(NSArray*)getFileList:(NSString*) path searchString:(NSString*)searchString isFullPath:(BOOL)isFullPath;
++(NSArray*) getFileList:(NSString*) path searchString:(NSString*) searchString isFullPath:(BOOL) isFullPath isIncludeSubFolder:(BOOL) isIncludeSubFolder filterListType:(enum GetFileListType) filterListType;
 
-+(NSArray*)getFileList:(NSString*) path fileType:(NSString*) fileType isFullPath:(BOOL)isFullPath;
++(NSArray*) getFileList:(NSString*) path searchString:(NSString*) searchString isFullPath:(BOOL) isFullPath;
 
-+(NSArray*)getFileList:(NSString*) path fileType:(NSString*) fileType;
++(NSArray*) getFileList:(NSString*) path fileType:(NSString*) fileType isFullPath:(BOOL) isFullPath;
 
-+(BOOL)createDirectory:(NSString*) path;
++(NSArray*) getFileList:(NSString*) path fileType:(NSString*) fileType;
 
-+(BOOL)removeFileOrDirectory:(NSString*) path;
++(BOOL) createDirectory:(NSString*) path;
 
-+(void)saveImage:(UIImage *)photo path:(NSString *)path;
++(BOOL) removeFileOrDirectory:(NSString*) path;
 
-+(void)saveImage:(UIImage *)photo path:(NSString *)path jpgCompressLevel:(CGFloat) jpgCompressLevel;
++(void) saveImage:(UIImage*) photo path:(NSString*) path;
 
-+(UIImagePickerController*)showPickerController: (id) container sourceType:(UIImagePickerControllerSourceType) sourceType;
++(void) saveImage:(UIImage*) photo path:(NSString*) path jpgCompressLevel:(CGFloat) jpgCompressLevel;
 
-+(void) writeContent:(NSString*)content toFile:(NSString*)fileName isAppend:(BOOL)isAppend;
++(UIImagePickerController*) showPickerController: (id) container sourceType:(UIImagePickerControllerSourceType) sourceType;
 
-+(NSString*)readFile: (NSString*) filePath;
++(void) writeContent:(NSString*) content toFile:(NSString*) fileName isAppend:(BOOL) isAppend;
 
-+(NSString*)readFileInDocument:(NSString*) fileName;
++(NSString*) readFile: (NSString*) filePath;
 
-+(NSString*)readEmbedResourceFileWithFilename:(NSString *)filename;
++(NSString*) readFileInDocument:(NSString*) fileName;
 
-+(BOOL)moveFileFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
++(NSString*) readEmbedResourceFileWithFilename:(NSString*) filename;
 
-+(BOOL)copyFileFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
++(BOOL) moveFileFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
 
-+(BOOL)copyFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
++(BOOL) copyFileFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
 
-+(BOOL)moveFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
++(BOOL) copyFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
 
-+(ReturnSet*)renameFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath mergeFolderData:(BOOL) mergeFolderData removeOldFolder:(BOOL)removeOldFolder;
++(BOOL) moveFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath;
 
-+(BOOL)checkPathExisted:(NSString*) path;
++(ReturnSet*) renameFolderFromPath:(NSString*) fromPath toPath:(NSString*) toPath mergeFolderData:(BOOL) mergeFolderData removeOldFolder:(BOOL) removeOldFolder;
 
-+(BOOL)checkPathIsDirectory:(NSString*) path;
++(BOOL) checkPathExisted:(NSString*) path;
 
-+(NSString*)getNewName:(NSString*)prefix suffix:(NSString*)suffix;
++(BOOL) checkPathIsDirectory:(NSString*) path;
 
-+(NSString*)getNewNameYMDHMSWithPrefix:(NSString*)prefix suffix:(NSString*)suffix;
++(NSString*) getNewName:(NSString*) prefix suffix:(NSString*) suffix;
 
-+(void)setAppPreference:(NSString*) key value:(id)value;
++(NSString*) getNewNameYMDHMSWithPrefix:(NSString*) prefix suffix:(NSString*) suffix;
 
-+(id)getAppPreference:(NSString*)key defaultValue:(id)defaultValue;
++(void) setAppPreference:(NSString*) key value:(id) value;
 
-+(double)getFileSizeWithPath:(NSString*) path;
++(id) getAppPreference:(NSString*) key defaultValue:(id) defaultValue;
 
-+(double)getFolderSizeWithPath:(NSString*) path includeSubFolder:(BOOL)includeSubFolder;
++(double) getFileSizeWithPath:(NSString*) path;
 
-+(NSString*)genAutoFilenameWithSourcefile:(NSString*)sourcefile destinationFolder:(NSString*)destinationFolder;
++(double) getFolderSizeWithPath:(NSString*) path includeSubFolder:(BOOL) includeSubFolder;
 
-+(NSArray*)sortFileList:(NSArray*) files sortType:(enum SortFileListType) sortType isSortAscending:(BOOL)isSortAscending;
++(NSString*) genAutoFilenameWithSourcefile:(NSString*) sourcefile destinationFolder:(NSString*) destinationFolder;
 
-+(NSDictionary*) breakDownPath:(NSString*)filePath;
++(NSArray*) sortFileList:(NSArray*) files sortType:(enum SortFileListType) sortType isSortAscending:(BOOL) isSortAscending;
 
-+(NSString*) updateFilename:(NSString*)filePath withPrefix:(NSString*)prefix suffix:(NSString*)suffix newExtension:(NSString*)newExtension;
++(NSDictionary*) breakDownPath:(NSString*) filePath;
 
-+(NSString *)md5HashOfPath:(NSString *)path;
++(NSString*) updateFilename:(NSString*) filePath withPrefix:(NSString*) prefix suffix:(NSString*) suffix newExtension:(NSString*) newExtension;
 
-+(NSString *)shaHashOfPath:(NSString *)path;
++(NSString*) md5HashOfPath:(NSString*) path;
+
++(NSString*) shaHashOfPath:(NSString*) path;
+
++(NSString*) base64StringFromFileAtPath:(NSString*) filePath;
+
++(NSData*) dataFrom64String:(NSString*) stringEncodedWithBase64;
+
++(NSString*) getFullPathFromParam:(NSString*)param defaultPath:(NSString*)defaultPath;
 
 @end
+

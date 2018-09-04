@@ -7,6 +7,7 @@
 //
 
 #import "NetLib.h"
+#import "SimplePing.h"
 
 @implementation NetLib
 
@@ -22,7 +23,7 @@
     NSData *urlData = [NSData dataWithContentsOfURL:nsurl];
     
     if ([urlData length] == 0) {
-        return [[ReturnSet alloc] initWithResult:NO];
+        return [ReturnSet initWithResult:NO];
     }
     
     //[urlData writeToFile:toPath atomically:YES];
@@ -32,7 +33,7 @@
     
     if(error) NSLog(@"Error: %@", error);
     
-    return [[ReturnSet alloc] initWithMessage:YES message:toPath];
+    return [ReturnSet initWithMessage:YES message:toPath];
 }
 
 +(ReturnSet*)downloadFileToDocument:(NSString*) destinationFile url:(NSString*) url{
@@ -52,12 +53,12 @@
     }
     
     if (content == nil) {
-        return [[ReturnSet alloc] initWithResult:NO];
+        return [ReturnSet initWithResult:NO];
     }
     
     [FileLib writeContent:content toFile:toPath isAppend:NO];
     
-    return [[ReturnSet alloc] init:YES message:toPath object:toPath];
+    return [ReturnSet init:YES message:toPath object:toPath];
 }
 
 +(ReturnSet*)downloadTextFileToDocument:(NSString*) destinationFile url:(NSString*) url{
@@ -124,10 +125,10 @@
                                                returningResponse:&theResponse
                                                            error:&theError];
     if (!reqResults) {
-        return [[ReturnSet alloc] initWithMessage:NO message:[NSString stringWithFormat:@"Connection error for URL: %@", [url description]]];
+        return [ReturnSet initWithMessage:NO message:[NSString stringWithFormat:@"Connection error for URL: %@", [url description]]];
     }else{
         NSString *returnString = [[NSString alloc] initWithData:reqResults encoding:NSUTF8StringEncoding];
-        return [[ReturnSet alloc] init:YES message:[NSString stringWithFormat:@"%@", returnString] object:returnString];
+        return [ReturnSet init:YES message:[NSString stringWithFormat:@"%@", returnString] object:returnString];
     }
 }
 
@@ -198,24 +199,47 @@
                                                returningResponse:&theResponse
                                                            error:&theError];
     if (!reqResults) {
-        return [[ReturnSet alloc] initWithMessage:NO message:[NSString stringWithFormat:@"Connection error for URL: %@", [url description]]];
+        return [ReturnSet initWithMessage:NO message:[NSString stringWithFormat:@"Connection error for URL: %@", [url description]]];
     }else{
         NSString *returnString = [[NSString alloc] initWithData:reqResults encoding:NSUTF8StringEncoding];
-        return [[ReturnSet alloc] init:YES message:[NSString stringWithFormat:@"%@", returnString] object:returnString];
+        return [ReturnSet init:YES message:[NSString stringWithFormat:@"%@", returnString] object:returnString];
     }
 }
 
-+(BOOL)isInternetAvailable{
+
+
++(BOOL)isInternetAvailable
+{
+    return [NetworkChecker instance].isPingSuccess;
+}
+
++(BOOL)isNetworkConnectionReady
+{
     Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
     NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
     
-    if (networkStatus == NotReachable) {
-        NSLog(@"Checking Internet: NO");
-        return NO;
-    } else {
-        NSLog(@"Checking Internet: YES - READY");
-        return YES;
-    }
+    NSLog(@"Checking network connection: %@", @(!(networkStatus == NotReachable)));
+    return !(networkStatus == NotReachable);
+}
+
++(BOOL) isReachableURL:(NSString*)url
+{
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    
+    [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+    
+    if(!response) return NO;
+    
+    NSLog(@"isReachableURL: %@", response.URL.absoluteString);
+    
+    if(![response.URL.absoluteString containsString:url]) return NO;
+    
+    NSInteger statusCode = [((NSHTTPURLResponse *)response) statusCode];
+    
+    return statusCode >= 200 && statusCode < 300;
 }
 
 +(NSString*)uRLEncoding:(NSString *)val
@@ -232,14 +256,14 @@
     NSString* content = [[NSString alloc] initWithContentsOfURL:nsurl encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        return [[ReturnSet alloc] initWithMessage:NO message:[NSString stringWithFormat:@"ReadTextFromUrl error:: %@", error]];
+        return [ReturnSet initWithMessage:NO message:[NSString stringWithFormat:@"ReadTextFromUrl error:: %@", error]];
     }
     
     if (content == nil) {
-        return [[ReturnSet alloc] initWithMessage:NO message:@"No content returned"];
+        return [ReturnSet initWithMessage:NO message:@"No content returned"];
     }
     
-    return [[ReturnSet alloc] initWithObject:YES object:[NSString stringWithFormat:@"%@", content]];
+    return [ReturnSet initWithObject:YES object:[NSString stringWithFormat:@"%@", content]];
 }
 
 +(ReturnSet*)getFileNameSizeFromURL:(NSString*)url{
@@ -255,13 +279,13 @@
     NSString* size = [NSString stringWithFormat:@"%lld", [response expectedContentLength]];
     
     if (error != nil) {
-        return [[ReturnSet alloc] initWithMessage:NO message:[NSString stringWithFormat:@"Error: %@", error]];
+        return [ReturnSet initWithMessage:NO message:[NSString stringWithFormat:@"Error: %@", error]];
     }
     
     if (response.statusCode /100 != 2) {
-        return [[ReturnSet alloc] initWithMessage:NO message:@"Wrong return code"];
+        return [ReturnSet initWithMessage:NO message:@"Wrong return code"];
     }else{
-        return [[ReturnSet alloc] initWithObject:YES object:[NSString stringWithFormat:@"%@",response.suggestedFilename] extraObject: size ];
+        return [ReturnSet initWithObject:YES object:[NSString stringWithFormat:@"%@",response.suggestedFilename] extraObject: size ];
     }
 }
 
@@ -291,3 +315,177 @@
 }
 
 @end
+
+
+
+
+
+
+
+
+
+@interface NetworkChecker()<SimplePingDelegate>
+@property (nonatomic) SimplePing* pinger;
+@property (nonatomic) NSTimer* sendTimer;
+@property (nonatomic) void(^networkStatusChangedBlock)(BOOL isOnline);
+@property (nonatomic) void(^networkInitFail)(NSError *error);
+@end
+
+@implementation NetworkChecker
+
++ (instancetype)instance
+{
+    static NetworkChecker *sharedGameKitHelper;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedGameKitHelper = [[NetworkChecker alloc] initDefaultAuto];
+    });
+    
+    return sharedGameKitHelper;
+}
+
+-(instancetype) initDefaultAuto
+{
+    self = [super init];
+    if (self) {
+        self.pinger = [[SimplePing alloc] initWithHostName:@"8.8.8.8"];
+        self.pinger.delegate = self;
+        self.isAutoRetryPing = YES;
+        _isInitSuccess = YES;
+        [self.pinger start];
+    }
+    return self;
+}
+
+-(instancetype) initWithHostName:(NSString*)hostName
+{
+    self = [super init];
+    if (self) {
+        self.pinger = [[SimplePing alloc] initWithHostName:hostName];
+        self.pinger.delegate = self;
+        self.isAutoRetryPing = YES;
+        _isInitSuccess = YES;
+    }
+    return self;
+}
+
+-(void) startPinger
+{
+    [self.pinger start];
+}
+
+
+-(void)setNetworkStatusChangedBlock:(void (^)(BOOL isOnline))networkStatusChangedBlock
+{
+    _networkStatusChangedBlock = networkStatusChangedBlock;
+}
+
+-(void)setNetworkInitFail:(void (^)(NSError *error))networkInitFail
+{
+    _networkInitFail = networkInitFail;
+}
+
+- (void)sendPing
+{
+    if(!self.pinger) return;
+    [self.pinger sendPingWithData:nil];
+    
+    if(!self.isAutoRetryPing) return;
+    
+    if(self.sendTimer){
+        [self.sendTimer invalidate];
+        self.sendTimer = nil;
+    }
+    
+    self.sendTimer = [NSTimer scheduledTimerWithTimeInterval:(self.pingDelay == 0 ? 1 : self.pingDelay) target:self selector:@selector(sendPing) userInfo:nil repeats:NO];
+}
+
+- (void)simplePing:(SimplePing *)pinger didStartWithAddress:(NSData *)address
+{
+    assert(pinger == self.pinger);
+    assert(address != nil);
+    
+    NSLog(@"pinging %@", address);
+    
+    [self sendPing];
+}
+
+- (void)simplePing:(SimplePing *)pinger didFailWithError:(NSError *)error
+{
+    assert(pinger == self.pinger);
+    NSLog(@"failed: %@", error);
+    
+    if (_networkInitFail) {
+        _networkInitFail(error);
+    }
+    
+    if (_isPingSuccess)
+    {
+        _isPingSuccess = NO;
+        if (_networkStatusChangedBlock) _networkStatusChangedBlock(_isPingSuccess);
+    }
+    
+    
+    
+    
+    _isInitSuccess = NO;
+    [self.sendTimer invalidate];
+    self.sendTimer = nil;
+    self.pinger = nil;
+}
+
+- (void)simplePing:(SimplePing *)pinger didSendPacket:(NSData *)packet sequenceNumber:(uint16_t)sequenceNumber
+{
+    assert(pinger == self.pinger);
+    NSLog(@"#%u sent", (unsigned int) sequenceNumber);
+}
+
+- (void)simplePing:(SimplePing *)pinger didFailToSendPacket:(NSData *)packet sequenceNumber:(uint16_t)sequenceNumber error:(NSError *)error
+{
+    if (_isPingSuccess)
+    {
+        _isPingSuccess = NO;
+        if (_networkStatusChangedBlock) _networkStatusChangedBlock(_isPingSuccess);
+    }
+    
+    assert(pinger == self.pinger);
+    NSLog(@"#%u send failed: %@", (unsigned int) sequenceNumber, error);
+}
+
+- (void)simplePing:(SimplePing *)pinger didReceivePingResponsePacket:(NSData *)packet sequenceNumber:(uint16_t)sequenceNumber
+{
+    if (!_isPingSuccess)
+    {
+        _isPingSuccess = YES;
+        if (_networkStatusChangedBlock) _networkStatusChangedBlock(_isPingSuccess);
+    }
+    
+    assert(pinger == self.pinger);
+    NSLog(@"#%u received, size=%zu", (unsigned int) sequenceNumber, (size_t) packet.length);
+}
+
+- (void)simplePing:(SimplePing *)pinger didReceiveUnexpectedPacket:(NSData *)packet
+{
+    if (_isPingSuccess)
+    {
+        _isPingSuccess = NO;
+        if (_networkStatusChangedBlock) _networkStatusChangedBlock(_isPingSuccess);
+    }
+    assert(pinger == self.pinger);
+    NSLog(@"unexpected packet, size=%zu", (size_t) packet.length);
+}
+
+-(void) dealloc
+{
+    if(self.sendTimer){
+        [self.sendTimer invalidate];
+        self.sendTimer = nil;
+    }
+    
+    _pinger = nil;
+    _networkStatusChangedBlock = nil;
+}
+
+
+@end
+

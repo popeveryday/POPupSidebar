@@ -51,6 +51,14 @@
 +(BOOL)isEqualString:(NSString*) str1 withString:(NSString*) str2;
 
 +(NSString*)subStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr;
++(NSString*)subStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd;
+
++(NSArray*)allSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr;
++(NSArray*)allSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd;
+
++(NSDictionary*)buildTreeSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr;
+
++(NSString*)lastSubStringBetween:(NSString*) source startStr:(NSString*) startStr endStr:(NSString*)endStr includeStartEnd:(BOOL)includeStartEnd;
 
 +(NSDictionary*)deparseJson:(NSString*)jsonString;
 
@@ -62,5 +70,12 @@
 
 +(NSInteger) genNumberFromCode:(NSString*)code dictionaryString:(NSString*) dictionaryString;
 
++(NSString*) md5:(NSString*)str;
 
++(NSString*) md5_2:(NSString*)str;
+
++ (NSString*)sha256:(NSString*)input;
+
++(NSString*) replaceOneTimeWithContent:(NSString*)content original:(NSString*)original replacement:(NSString*)replacement;
 @end
+
