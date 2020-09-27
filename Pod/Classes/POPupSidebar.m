@@ -878,7 +878,7 @@ static POPupSidebarVC *sharedInstance = nil;
     }
     
     titleView.text = LocalizedText([[item hashtable_GetValueForKey:@"title"] stringByReplacingOccurrencesOfString:@"[AnD]" withString:@"&"],nil);
-    
+    if ([POPupSidebarVC Instance].customMenuItemTextColor != nil) titleView.textColor = [POPupSidebarVC Instance].customMenuItemTextColor;
     
     
     
